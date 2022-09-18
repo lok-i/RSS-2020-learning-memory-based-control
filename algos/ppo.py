@@ -342,8 +342,11 @@ def run_experiment(args):
 
     env = env_fn()
 
-    policy.train(0)
-    critic.train(0)
+    # lok-i, 17/9/22
+    # policy.train(0)
+    # critic.train(0)
+    policy.train(False)
+    critic.train(False)
 
     print("Collecting normalization statistics with {} states...".format(args.prenormalize_steps))
     train_normalizer(policy, args.prenormalize_steps, max_traj_len=args.traj_len, noise=1)
