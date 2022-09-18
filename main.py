@@ -1,3 +1,5 @@
+import numpy as np
+
 if __name__ == "__main__":
   import sys, argparse, time, os
   parser = argparse.ArgumentParser()
@@ -16,6 +18,14 @@ if __name__ == "__main__":
     from util import eval_policy
     import torch
 
+    poicy_network_name = sys.argv[1].split('/')[-1]
+
+    log_path = sys.argv[1].replace(poicy_network_name,'')
+    
+    print("log_path: ",log_path)
+    
+    
+
     model = sys.argv[1]
     sys.argv.remove(sys.argv[1])
 
@@ -24,7 +34,15 @@ if __name__ == "__main__":
 
     model = torch.load(model)
 
-    eval_policy(model, max_traj_len=args.traj_len, visualize=True, verbose=True)
+    returns, qpos_trajs = eval_policy(model, 
+    max_traj_len=args.traj_len, 
+    visualize=True, 
+    episodes=5,
+    verbose=True)
+    
+    # save qpos traj to replay later
+    qpos_trajs=np.array(qpos_trajs,dtype=list)
+    np.save(log_path+"five_epi_eval",qpos_trajs)
     exit()
 
   if option == 'cassie':

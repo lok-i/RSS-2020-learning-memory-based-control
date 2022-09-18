@@ -221,7 +221,7 @@ class CassieVis:
 
     def draw(self, c):
         state = cassie_vis_draw(self.v, c.c)
-        # print("vis draw state:", state)
+        print("vis draw state:", state)
         return state
 
     def valid(self):

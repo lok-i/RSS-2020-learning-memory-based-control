@@ -68,7 +68,13 @@ def train_normalizer(policy, min_timesteps, max_traj_len=1000, noise=0.5):
         timesteps += 1
         total_t += 1
 
-def eval_policy(model, env=None, episodes=5, max_traj_len=400, verbose=True, visualize=False):
+def eval_policy(model, 
+                env=None, 
+                episodes=5, 
+                max_traj_len=400, 
+                verbose=True, 
+                visualize=False
+                ):
   if env is None:
     env = env_factory(False)()
 
@@ -80,6 +86,9 @@ def eval_policy(model, env=None, episodes=5, max_traj_len=400, verbose=True, vis
   with torch.no_grad():
     steps = 0
     ep_returns = []
+    
+    qpos_trajs = []
+
     for _ in range(episodes):
       env.dynamics_randomization = False
       state = torch.Tensor(env.reset())
@@ -87,16 +96,27 @@ def eval_policy(model, env=None, episodes=5, max_traj_len=400, verbose=True, vis
       traj_len = 0
       ep_return = 0
 
+      
+
       if hasattr(policy, 'init_hidden_state'):
         policy.init_hidden_state()
-
+      
+      qpos_traj = []
       while not done and traj_len < max_traj_len:
+        
+
+        # print(type(env.sim.qpos()))
+        qpos_traj.append(env.sim.qpos())
+
         action = policy(state)
-        env.speed = 1
         next_state, reward, done, _ = env.step(action.numpy())
-        if visualize:
-          env.render()
+
+        # print(next_state.shape)
+
+        # if visualize:
+        #   env.render()
         state = torch.Tensor(next_state)
+
         ep_return += reward
         traj_len += 1
         steps += 1
@@ -107,8 +127,11 @@ def eval_policy(model, env=None, episodes=5, max_traj_len=400, verbose=True, vis
       ep_returns += [ep_return]
       if verbose:
         print('Return: {:6.2f}'.format(ep_return))
-
-  return np.mean(ep_returns)
+        
+      qpos_traj = np.array(qpos_traj,dtype=list)
+      qpos_trajs.append(qpos_traj)
+  
+  return np.mean(ep_returns),qpos_trajs
   
 def env_factory(dynamics_randomization, verbose=False, **kwargs):
     from functools import partial

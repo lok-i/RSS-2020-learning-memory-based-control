@@ -302,7 +302,7 @@ class CassieEnv:
           self.cassie_state.joint.position[:],                                       # unactuated joint positions
           self.cassie_state.joint.velocity[:]                                        # unactuated joint velocities
       ])
-
+        
       return np.concatenate([robot_state, ext_state])
 
   def render(self):
