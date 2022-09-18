@@ -1,1 +1,12 @@
 logs/
+__pycache__/
+cassie/__pycache__/
+cassie/__pycache__/
+cassie/cassiemujoco/__pycache__/
+cassie/cassiemujoco/__pycache__/
+cassie/cassiemujoco/__pycache__/
+cassie/trajectory/__pycache__/
+cassie/trajectory/__pycache__/
+mujoco_render.py
+nn/__pycache__/
+nn/__pycache__/
