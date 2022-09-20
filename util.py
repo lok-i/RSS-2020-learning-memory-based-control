@@ -73,7 +73,8 @@ def eval_policy(model,
                 episodes=5, 
                 max_traj_len=400, 
                 verbose=True, 
-                visualize=False
+                visualize=False,
+                return_traj=False,
                 ):
   if env is None:
     env = env_factory(False)()
@@ -131,8 +132,11 @@ def eval_policy(model,
       qpos_traj = np.array(qpos_traj,dtype=list)
       qpos_trajs.append(qpos_traj)
   
-  return np.mean(ep_returns),qpos_trajs
-  
+  if return_traj:
+    return np.mean(ep_returns),qpos_trajs
+  else:
+    return np.mean(ep_returns)
+
 def env_factory(dynamics_randomization, verbose=False, **kwargs):
     from functools import partial
 

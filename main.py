@@ -34,12 +34,15 @@ if __name__ == "__main__":
 
     model = torch.load(model)
 
-    returns, qpos_trajs = eval_policy(model, 
-    max_traj_len=args.traj_len, 
-    visualize=True, 
-    episodes=5,
-    verbose=True)
-    
+    returns, qpos_trajs = eval_policy(
+                                      model, 
+                                      max_traj_len=args.traj_len, 
+                                      visualize=True, 
+                                      episodes=5,
+                                      verbose=True,
+                                      return_traj = True,
+                                      )
+                                      
     # save qpos traj to replay later
     qpos_trajs=np.array(qpos_trajs,dtype=list)
     np.save(log_path+"five_epi_eval",qpos_trajs)
