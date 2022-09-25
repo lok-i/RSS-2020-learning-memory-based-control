@@ -16,6 +16,7 @@ from torch.distributions import kl_divergence
 from torch.nn.utils.rnn import pad_sequence
 from copy import deepcopy
 from time import time
+import yaml
 
 class Buffer:
   """
@@ -306,7 +307,7 @@ class PPO:
         print("\t{:3.2f}s to update policy.".format(time() - start))
       return np.mean(kls), np.mean(a_loss), np.mean(c_loss), len(memory)
 
-def run_experiment(args):
+def run_experiment(args,**kwargs):
     torch.set_num_threads(1)
 
     from util import create_logger, env_factory, eval_policy, train_normalizer
@@ -318,7 +319,10 @@ def run_experiment(args):
     locale.setlocale(locale.LC_ALL, '')
 
     # wrapper function for creating parallelized envs
-    env_fn     = env_factory(args.randomize)
+    env_fn     = env_factory(
+                              args.randomize, 
+                              args.exp_conf_path
+                            )
     obs_dim    = env_fn().observation_space.shape[0]
     action_dim = env_fn().action_space.shape[0]
     layers     = [int(x) for x in args.layers.split(',')]
@@ -348,23 +352,25 @@ def run_experiment(args):
     policy.train(False)
     critic.train(False)
 
-    print("Collecting normalization statistics with {} states...".format(args.prenormalize_steps))
-    train_normalizer(policy, args.prenormalize_steps, max_traj_len=args.traj_len, noise=1)
-    critic.copy_normalizer_stats(policy)
-
-    algo = PPO(policy, critic, env_fn, args)
 
     # create a tensorboard logging object
     if not args.nolog:
       logger = create_logger(args)
     else:
       logger = None
+    
+    print("Collecting normalization statistics with {} states...".format(args.prenormalize_steps))
+    train_normalizer(policy, args.prenormalize_steps, max_traj_len=args.traj_len, noise=1,exp_conf_path=args.exp_conf_path)
+    critic.copy_normalizer_stats(policy)
+
+    algo = PPO(policy, critic, env_fn, args)
 
     if args.save_actor is None and logger is not None:
       args.save_actor = os.path.join(logger.dir, 'actor.pt')
 
     if args.save_critic is None and logger is not None:
       args.save_critic = os.path.join(logger.dir, 'critic.pt')
+
 
     print()
     print("Proximal Policy Optimization:")
@@ -382,6 +388,9 @@ def run_experiment(args):
     print("\trecurrent:          {}".format(args.recurrent))
     print("\tdynamics rand:      {}".format(args.randomize))
     print("\tworkers:            {}".format(args.workers))
+    conf_file = open(args.exp_conf_path)
+    exp_conf = yaml.load(conf_file, Loader=yaml.FullLoader)
+    print('\texperiment configuration {}'.format(exp_conf))    
     print()
 
     itr = 0

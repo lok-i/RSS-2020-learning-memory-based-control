@@ -1,5 +1,7 @@
 import numpy as np
 
+from util import eval_policy_to_plot
+
 if __name__ == "__main__":
   import sys, argparse, time, os
   parser = argparse.ArgumentParser()
@@ -41,12 +43,52 @@ if __name__ == "__main__":
                                       episodes=5,
                                       verbose=True,
                                       return_traj = True,
+                                      exp_conf_path = args.exp_conf_path
                                       )
                                       
     # save qpos traj to replay later
     qpos_trajs=np.array(qpos_trajs,dtype=list)
     np.save(log_path+"five_epi_eval",qpos_trajs)
     exit()
+
+
+  if option == 'eval_plot':
+    from util import eval_policy
+    import torch
+
+    poicy_network_name = sys.argv[1].split('/')[-1]
+
+    log_path = sys.argv[1].replace(poicy_network_name,'')
+    
+    print("log_path: ",log_path)
+    
+    
+
+    model = sys.argv[1]
+    sys.argv.remove(sys.argv[1])
+
+    parser.add_argument("--traj_len", default=300, type=int)
+    args = parser.parse_args()
+
+    model = torch.load(model)
+
+    returns, qpos_trajs = eval_policy_to_plot(
+                                      model, 
+                                      max_traj_len=args.traj_len, 
+                                      visualize=True, 
+                                      episodes=5,
+                                      verbose=True,
+                                      return_traj = True,
+                                      save_logpath = log_path,
+                                      exp_conf_path = args.exp_conf_path
+                                      )
+                                      
+    # # save qpos traj to replay later
+    # qpos_trajs=np.array(qpos_trajs,dtype=list)
+    # np.save(log_path+"five_epi_eval",qpos_trajs)
+    exit()
+
+
 
   if option == 'cassie':
     from cassie.udp import run_udp
@@ -108,9 +150,17 @@ if __name__ == "__main__":
     parser.add_argument("--nolog",              action='store_true')               # store log data or not.
     parser.add_argument("--recurrent",          action='store_true')               # recurrent policy or not
     parser.add_argument("--randomize",          action='store_true')               # randomize dynamics or not
-    args = parser.parse_args()
+    
+    # env params to play with 
+    parser.add_argument("--exp_conf_path",  default="./exp_confs/default.yaml", type=str)  # path to econf file of experiment parameters
 
-    run_experiment(args)
+    args = parser.parse_args()
+    
+
+    run_experiment(
+                  args                      
+                  )
+                                        
 
   elif option == 'pca':
     from algos.pca import run_pca

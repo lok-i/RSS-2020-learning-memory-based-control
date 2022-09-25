@@ -7,14 +7,29 @@ from math import floor
 import numpy as np 
 import os
 import random
+import yaml
 
 import pickle
 
 class CassieEnv:
-  def __init__(self, dynamics_randomization=False):
+  def __init__(self, 
+                dynamics_randomization=False,
+                exp_conf_path='./exp_confs/default.yaml'):
+
+
     self.sim = CassieSim("./cassie/cassiemujoco/cassie.xml")
     self.vis = None
+    self.ref_qpos0 = None
+    self.ref_qvel0 = None
+    
+    # print(kwargs["vx_d_max"])
+    # exit()
+    # register all exp params thart are experimneted with across trainings
+    conf_file = open(exp_conf_path)
+    exp_conf = yaml.load(conf_file, Loader=yaml.FullLoader)
 
+    self.vx_d_min = exp_conf["vx_d_min"] if "vx_d_min" in exp_conf.keys() else -0.15
+    self.vx_d_max = exp_conf["vx_d_max"] if "vx_d_max" in exp_conf.keys() else 0.8
     self.dynamics_randomization = dynamics_randomization
 
     state_est_size = 46
@@ -106,15 +121,19 @@ class CassieEnv:
 
       return self.get_full_state(), reward, done, {}
 
-  def reset(self):
+  def reset(
+    
+            self,
+            vx_des = None
+            ):
       self.phase = random.randint(0, self.phaselen)
       self.time = 0
       self.counter = 0
 
-      qpos, qvel = self.get_ref_state(self.phase)
+      self.ref_qpos0, self.ref_qvel0 = self.get_ref_state(self.phase)
 
-      self.sim.set_qpos(qpos)
-      self.sim.set_qvel(qvel)
+      self.sim.set_qpos(self.ref_qpos0)
+      self.sim.set_qvel(self.ref_qvel0)
 
       # Randomize dynamics:
       if self.dynamics_randomization:
@@ -190,7 +209,11 @@ class CassieEnv:
       self.sim.set_const()
 
       self.cassie_state = self.sim.step_pd(self.u)
-      self.speed        = np.random.uniform(-0.15, 0.8)
+      
+      if vx_des is None:
+        self.speed = np.random.uniform(self.vx_d_min, self.vx_d_max)
+      else:
+        self.speed = vx_des #1.75
 
       return self.get_full_state()
 

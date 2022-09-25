@@ -1,8 +1,11 @@
+from cmath import exp
 import torch
 import hashlib
 import os
 import numpy as np
 from collections import OrderedDict
+import shutil
+
 
 def create_logger(args):
   from torch.utils.tensorboard import SummaryWriter
@@ -30,7 +33,9 @@ def create_logger(args):
   else:
     arg_hash   = hashlib.md5(str(arg_dict).encode('ascii')).hexdigest()[0:6] + '-seed' + seed
 
-  output_dir = os.path.join(logdir, arg_hash)
+  # output_dir = os.path.join(logdir, arg_hash)
+  conf_name = args.exp_conf_path.split('/')[-1]
+  output_dir = os.path.join(logdir, conf_name.replace('.yaml',''))
 
   # create a directory with the hyperparm hash as its name, if it doesn't
   # already exist.
@@ -43,14 +48,26 @@ def create_logger(args):
       file.write("%s: %s" % (key, val))
       file.write('\n')
 
+  # copy the exp_conf_file
+  # src_path = r"E:\demos\files\report\profit.txt"
+  # dst_path = r"E:\demos\files\account\profit.txt"
+  
+  shutil.copy(args.exp_conf_path, os.path.join(output_dir,conf_name))
+
   logger = SummaryWriter(output_dir, flush_secs=0.1)
   logger.dir = output_dir
+
   logger.arg_hash = arg_hash
   return logger
 
-def train_normalizer(policy, min_timesteps, max_traj_len=1000, noise=0.5):
+def train_normalizer(policy,
+                     min_timesteps, 
+                     max_traj_len=1000, 
+                     noise=0.5,
+                     exp_conf_path="./exp_confs/default.yaml"
+                     ):
   with torch.no_grad():
-    env = env_factory(policy.env_name)()
+    env = env_factory(policy.env_name,exp_conf_path)()
     env.dynamics_randomization = False
 
     total_t = 0
@@ -75,9 +92,10 @@ def eval_policy(model,
                 verbose=True, 
                 visualize=False,
                 return_traj=False,
+                exp_conf_path = './exp_confs/default.yaml'
                 ):
   if env is None:
-    env = env_factory(False)()
+    env = env_factory(False,exp_conf_path)()
 
   if model.nn_type == 'policy':
     policy = model
@@ -137,7 +155,120 @@ def eval_policy(model,
   else:
     return np.mean(ep_returns)
 
-def env_factory(dynamics_randomization, verbose=False, **kwargs):
+
+
+def eval_policy_to_plot(
+                model, 
+                env=None, 
+                episodes=5, 
+                max_traj_len=400, 
+                verbose=True, 
+                visualize=False,
+                return_traj=False, 
+                save_logpath = None,
+                exp_conf_path = './exp_confs/default.yaml'
+
+                ):
+  if env is None:
+    env = env_factory(False,exp_conf_path)()
+
+  if model.nn_type == 'policy':
+    policy = model
+  elif model.nn_type == 'extractor':
+    policy = torch.load(model.policy_path)
+
+  with torch.no_grad():
+    steps = 0
+    
+    
+    # qpos_trajs = []
+
+    # data collection
+
+    vxs_des = np.arange(-4,4,0.2)
+    # vxs_des = np.arange(-2.0,-1.6,0.2)
+
+    n_exps = vxs_des.shape[0]
+    n_trials = episodes
+
+    ep_returns = np.zeros((n_exps,n_trials),dtype=np.float32)
+    vxs_0 = np.zeros((n_exps,n_trials),dtype=np.float32)
+    dist_travelled = np.zeros((n_exps,n_trials),dtype=np.float32)
+    
+    for exp_no,vx_d in enumerate(vxs_des):
+      print("exp no:",exp_no,'vx_des',vx_d)
+      for trial_no in range(n_trials):
+        env.dynamics_randomization = False
+
+        state = torch.Tensor(env.reset(
+                                      vx_des=vx_d
+
+                                      ))
+        
+        vxs_0[exp_no][trial_no] = env.ref_qvel0[0]        
+        done = False
+        traj_len = 0
+        ep_return = 0
+
+        if hasattr(policy, 'init_hidden_state'):
+          policy.init_hidden_state()
+        
+        # qpos_traj = []
+        qpos = None
+        while not done and traj_len < max_traj_len:
+          
+
+          # print(type(env.sim.qpos()))
+          # qpos_traj.append(env.sim.qpos())
+          
+          action = policy(state)
+          next_state, reward, done, _ = env.step(action.numpy())
+          qpos = env.sim.qpos()
+          # print(next_state.shape)
+
+          # if visualize:
+          #   env.render()
+          state = torch.Tensor(next_state)
+
+          ep_return += reward
+          traj_len += 1
+          steps += 1
+
+          if model.nn_type == 'extractor':
+            pass
+
+
+        if verbose:
+          print('\ttrial no:',trial_no,'Return: {:6.2f}'.format(ep_return))
+          
+        # qpos_traj = np.array(qpos_traj,dtype=list)
+        # qpos_trajs.append(qpos_traj)
+        
+        ep_returns[exp_no][trial_no] = ep_return
+        
+        delta_dist = qpos[0] - env.ref_qpos0[0]
+        dist_travelled[exp_no][trial_no] = delta_dist
+        # exit()
+        
+  if save_logpath != None:
+    np.savez_compressed(
+                        save_logpath+'vx_d_exps',
+                        vxs_des = vxs_des,
+                        vxs_0 = vxs_0,
+                        dist_travelled = dist_travelled,
+                        ep_returns = ep_returns,
+                        )
+
+  return np.mean(ep_returns)
+
+
+
+
+
+def env_factory(
+                dynamics_randomization,
+                exp_conf_path,
+                verbose=False, **kwargs):
     from functools import partial
 
     """
@@ -148,8 +279,11 @@ def env_factory(dynamics_randomization, verbose=False, **kwargs):
 
     """
     from cassie.cassie import CassieEnv
-
     if verbose:
       print("Created cassie env with arguments:")
       print("\tdynamics randomization: {}".format(dynamics_randomization))
-    return partial(CassieEnv, dynamics_randomization=dynamics_randomization)
+    return partial(
+                    CassieEnv, 
+                    dynamics_randomization=dynamics_randomization,
+                    exp_conf_path = exp_conf_path,
+                    )

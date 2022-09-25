@@ -12,7 +12,7 @@ data = mujoco.MjData(model)
 viewer = mujoco_viewer.MujocoViewer(model, data)
 
 
-log_path = "./logs/93cf86-seed0/"
+log_path = "./logs/recur_rand/"
 qpos_trajs = np.load(log_path+"five_epi_eval.npy",allow_pickle=True)
 
 # print(qpos_trajs.shape)
