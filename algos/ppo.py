@@ -404,7 +404,6 @@ def run_experiment(args,**kwargs):
                                   episodes=5, 
                                   max_traj_len=args.traj_len, 
                                   verbose=False, 
-                                  visualize=False
                                   )
 
       timesteps += steps

@@ -10,6 +10,7 @@ traj_path: '/home1/lkrajan/baseline_projects/RSS-2020-learning-memory-based-cont
 traj_slice_t: [0.06,0.66]
 vx_d_min: -0.15
 vx_d_max: 0.8
-p_gain: 50
-d_gain: 0.5
+p_gain: 100
+d_gain: 1
 robot: drcl_biped
+simrate: 15

@@ -17,7 +17,7 @@ python3 main.py ppo --workers 16 \
                     --layers 128,128 \
                     --std 0.13 \
                     --logdir /home1/lkrajan/baseline_projects/RSS-2020-learning-memory-based-control/logs/ \
-                    --exp_conf_path  /home1/lkrajan/baseline_projects/RSS-2020-learning-memory-based-control/exp_confs/vx_d_sym1.yaml
+                    --exp_conf_path  /home1/lkrajan/baseline_projects/RSS-2020-learning-memory-based-control/exp_confs/${exp_name}.yaml
 
 
 

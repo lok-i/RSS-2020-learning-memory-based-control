@@ -6,13 +6,13 @@ from dm_control import mujoco
 import mujoco_viewer
 import numpy as np
 
-model_path = "./cassie/cassiemujoco/cassie.xml"
+model_path = "./dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml" #"./cassie/cassiemujoco/cassie.xml"
 model = mujoco.MjModel.from_xml_path(model_path)
 data = mujoco.MjData(model)
 viewer = mujoco_viewer.MujocoViewer(model, data)
 
 
-log_path = "./logs/recur_rand/"
+log_path = "./logs/drcl_biped_1st_trng/"
 qpos_trajs = np.load(log_path+"five_epi_eval.npy",allow_pickle=True)
 
 print("log_path:",log_path)

@@ -37,11 +37,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     model = torch.load(model)
-
+    print(args.exp_conf_path)
     returns, qpos_trajs = eval_policy(
                                       model, 
                                       max_traj_len=args.traj_len, 
-                                      visualize=True, 
                                       episodes=5,
                                       verbose=True,
                                       return_traj = True,
@@ -118,7 +117,6 @@ if __name__ == "__main__":
       exit(1)
     run_experiment(args)
     exit()
-
 
   # Options common to all RL algorithms.
   elif option == 'ppo':

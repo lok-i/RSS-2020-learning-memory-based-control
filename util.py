@@ -92,7 +92,6 @@ def eval_policy(model,
                 episodes=5, 
                 max_traj_len=400, 
                 verbose=True, 
-                visualize=False,
                 return_traj=False,
                 exp_conf_path = './exp_confs/default.yaml'
                 ):
@@ -110,13 +109,29 @@ def eval_policy(model,
     
     qpos_trajs = []
 
+
+    if env.sim.sim_params['render']['active']:
+      env.sim.viewer._paused = True
+      env.sim.viewer.cam.distance = 3
+      cam_pos = [0.0, 0.0, 0.75]
+
+      for i in range(3):        
+          env.sim.viewer.cam.lookat[i]= cam_pos[i] 
+      env.sim.viewer.cam.elevation = -15
+      env.sim.viewer.cam.azimuth = 180
+
+
+
     for _ in range(episodes):
       env.dynamics_randomization = False
+      
+      
       state = torch.Tensor(env.reset())
       done = False
       traj_len = 0
       ep_return = 0
 
+    
       
 
       if hasattr(policy, 'init_hidden_state'):
@@ -124,17 +139,12 @@ def eval_policy(model,
       
       qpos_traj = []
       while not done and traj_len < max_traj_len:
-        
 
-        # print(type(env.sim.qpos()))
-        # qpos_traj.append(env.sim.qpos())
+        if return_traj:
+          qpos_traj.append(env.sim.data.qpos[:])
         action = policy(state)
         next_state, reward, done, _ = env.step(action.numpy())
 
-        # print(next_state.shape)
-
-        # if visualize:
-        #   env.render()
         state = torch.Tensor(next_state)
 
         ep_return += reward
@@ -147,9 +157,10 @@ def eval_policy(model,
       ep_returns += [ep_return]
       if verbose:
         print('Return: {:6.2f}'.format(ep_return))
-        
-      # qpos_traj = np.array(qpos_traj,dtype=list)
-      # qpos_trajs.append(qpos_traj)
+      
+      if return_traj:
+        qpos_traj = np.array(qpos_traj,dtype=list)
+        qpos_trajs.append(qpos_traj)
   
   if return_traj:
     return np.mean(ep_returns),qpos_trajs
