@@ -32,6 +32,8 @@ if __name__ == "__main__":
     sys.argv.remove(sys.argv[1])
 
     parser.add_argument("--traj_len", default=300, type=int)
+    parser.add_argument("--exp_conf_path",  default="./exp_confs/default.yaml", type=str)  # path to econf file of experiment parameters
+
     args = parser.parse_args()
 
     model = torch.load(model)
@@ -51,7 +53,6 @@ if __name__ == "__main__":
     np.save(log_path+"five_epi_eval",qpos_trajs)
     exit()
 
-
   if option == 'eval_plot':
     from util import eval_policy
     import torch
@@ -68,11 +69,13 @@ if __name__ == "__main__":
     sys.argv.remove(sys.argv[1])
 
     parser.add_argument("--traj_len", default=300, type=int)
+    parser.add_argument("--exp_conf_path",  default="./exp_confs/default.yaml", type=str)  # path to econf file of experiment parameters
+
     args = parser.parse_args()
 
     model = torch.load(model)
 
-    returns, qpos_trajs = eval_policy_to_plot(
+    returns = eval_policy_to_plot(
                                       model, 
                                       max_traj_len=args.traj_len, 
                                       visualize=True, 
@@ -87,8 +90,6 @@ if __name__ == "__main__":
     # qpos_trajs=np.array(qpos_trajs,dtype=list)
     # np.save(log_path+"five_epi_eval",qpos_trajs)
     exit()
-
-
 
   if option == 'cassie':
     from cassie.udp import run_udp

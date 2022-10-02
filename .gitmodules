@@ -1,0 +1,3 @@
+[submodule "dtsd"]
+	path = dtsd
+	url = https://github.com/lok-i/dtsd

@@ -1,10 +1,12 @@
 from cmath import exp
+from math import fabs
 import torch
 import hashlib
 import os
 import numpy as np
 from collections import OrderedDict
 import shutil
+import yaml
 
 
 def create_logger(args):
@@ -67,7 +69,7 @@ def train_normalizer(policy,
                      exp_conf_path="./exp_confs/default.yaml"
                      ):
   with torch.no_grad():
-    env = env_factory(policy.env_name,exp_conf_path)()
+    env = env_factory(exp_conf_path)()
     env.dynamics_randomization = False
 
     total_t = 0
@@ -95,7 +97,7 @@ def eval_policy(model,
                 exp_conf_path = './exp_confs/default.yaml'
                 ):
   if env is None:
-    env = env_factory(False,exp_conf_path)()
+    env = env_factory(exp_conf_path)()
 
   if model.nn_type == 'policy':
     policy = model
@@ -125,8 +127,7 @@ def eval_policy(model,
         
 
         # print(type(env.sim.qpos()))
-        qpos_traj.append(env.sim.qpos())
-
+        # qpos_traj.append(env.sim.qpos())
         action = policy(state)
         next_state, reward, done, _ = env.step(action.numpy())
 
@@ -147,15 +148,13 @@ def eval_policy(model,
       if verbose:
         print('Return: {:6.2f}'.format(ep_return))
         
-      qpos_traj = np.array(qpos_traj,dtype=list)
-      qpos_trajs.append(qpos_traj)
+      # qpos_traj = np.array(qpos_traj,dtype=list)
+      # qpos_trajs.append(qpos_traj)
   
   if return_traj:
     return np.mean(ep_returns),qpos_trajs
   else:
     return np.mean(ep_returns)
-
-
 
 def eval_policy_to_plot(
                 model, 
@@ -170,7 +169,7 @@ def eval_policy_to_plot(
 
                 ):
   if env is None:
-    env = env_factory(False,exp_conf_path)()
+    env = env_factory(exp_conf_path)()
 
   if model.nn_type == 'policy':
     policy = model
@@ -194,6 +193,7 @@ def eval_policy_to_plot(
     ep_returns = np.zeros((n_exps,n_trials),dtype=np.float32)
     vxs_0 = np.zeros((n_exps,n_trials),dtype=np.float32)
     dist_travelled = np.zeros((n_exps,n_trials),dtype=np.float32)
+    e_vx_norm_avg = np.zeros((n_exps,n_trials),dtype=np.float32)
     
     for exp_no,vx_d in enumerate(vxs_des):
       print("exp no:",exp_no,'vx_des',vx_d)
@@ -209,7 +209,7 @@ def eval_policy_to_plot(
         done = False
         traj_len = 0
         ep_return = 0
-
+        vx_error_norm_avg = 0 
         if hasattr(policy, 'init_hidden_state'):
           policy.init_hidden_state()
         
@@ -224,6 +224,9 @@ def eval_policy_to_plot(
           action = policy(state)
           next_state, reward, done, _ = env.step(action.numpy())
           qpos = env.sim.qpos()
+
+          vx_error_norm = fabs(env.sim.qvel()[0] - env.speed)
+          vx_error_norm_avg += vx_error_norm
           # print(next_state.shape)
 
           # if visualize:
@@ -245,7 +248,7 @@ def eval_policy_to_plot(
         # qpos_trajs.append(qpos_traj)
         
         ep_returns[exp_no][trial_no] = ep_return
-        
+        e_vx_norm_avg[exp_no][trial_no] = vx_error_norm_avg / steps 
         delta_dist = qpos[0] - env.ref_qpos0[0]
         dist_travelled[exp_no][trial_no] = delta_dist
         # exit()
@@ -257,19 +260,21 @@ def eval_policy_to_plot(
                         vxs_0 = vxs_0,
                         dist_travelled = dist_travelled,
                         ep_returns = ep_returns,
+                        e_vx_norm_avg = e_vx_norm_avg,
+
                         )
 
   return np.mean(ep_returns)
 
-
-
-
-
 def env_factory(
-                dynamics_randomization,
+                # dynamics_randomization,
                 exp_conf_path,
-                verbose=False, **kwargs):
+                ):
     from functools import partial
+
+
+    conf_file = open(exp_conf_path)
+    exp_conf = yaml.load(conf_file, Loader=yaml.FullLoader)
 
     """
     Returns an *uninstantiated* environment constructor.
@@ -278,12 +283,17 @@ def env_factory(
     this allows us to pass their constructors to Ray remote functions instead 
 
     """
-    from cassie.cassie import CassieEnv
-    if verbose:
-      print("Created cassie env with arguments:")
-      print("\tdynamics randomization: {}".format(dynamics_randomization))
-    return partial(
-                    CassieEnv, 
-                    dynamics_randomization=dynamics_randomization,
-                    exp_conf_path = exp_conf_path,
-                    )
+    
+    
+    if 'robot' in exp_conf.keys() and exp_conf['robot'] == 'drcl_biped':
+      from dtsd.envs.biped_osudrl import biped_env
+      return partial(
+                      biped_env, 
+                      exp_conf_path = exp_conf_path,
+                      )
+    else:
+      from cassie.cassie import CassieEnv
+      return partial(
+                      CassieEnv, 
+                      exp_conf_path = exp_conf_path,
+                      )

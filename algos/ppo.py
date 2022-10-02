@@ -320,10 +320,10 @@ def run_experiment(args,**kwargs):
 
     # wrapper function for creating parallelized envs
     env_fn     = env_factory(
-                              args.randomize, 
                               args.exp_conf_path
                             )
-    obs_dim    = env_fn().observation_space.shape[0]
+
+    obs_dim    = env_fn().observation_space.shape[0]    
     action_dim = env_fn().action_space.shape[0]
     layers     = [int(x) for x in args.layers.split(',')]
 
@@ -398,7 +398,14 @@ def run_experiment(args,**kwargs):
     best_reward = None
     while timesteps < args.timesteps:
       kl, a_loss, c_loss, steps = algo.do_iteration(args.sample, args.traj_len, args.epochs, batch_size=args.batch_size, kl_thresh=args.kl)
-      eval_reward = eval_policy(algo.actor, env, episodes=5, max_traj_len=args.traj_len, verbose=False, visualize=False)
+      eval_reward = eval_policy(
+                                  algo.actor, 
+                                  env, 
+                                  episodes=5, 
+                                  max_traj_len=args.traj_len, 
+                                  verbose=False, 
+                                  visualize=False
+                                  )
 
       timesteps += steps
       print("iter {:4d} | return: {:5.2f} | KL {:5.4f} | timesteps {:n}".format(itr, eval_reward, kl, timesteps))

@@ -1,0 +1,15 @@
+sim_params:
+    render:
+      active: false
+      on_screen: false
+    model_path: "/home1/lkrajan/baseline_projects/RSS-2020-learning-memory-based-control/dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml"
+  
+visualize_reference: false
+dynamics_randomization: false
+traj_path: '/home1/lkrajan/baseline_projects/RSS-2020-learning-memory-based-control/dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_walk.npz'
+traj_slice_t: [0.06,0.66]
+vx_d_min: -0.15
+vx_d_max: 0.8
+p_gain: 30
+d_gain: 0.5
+robot: drcl_biped

@@ -1,2 +1,12 @@
-velx_d_min: -0.15
-velx_d_max: 0.8
+sim_params:
+  render:
+    active: true
+    on_screen: true
+  model_path: "dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml"
+
+visualize_reference: true
+dynamics_randomization: false
+traj_path: 'dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_walk.npz'
+traj_slice_t: [0.06,0.66]
+vx_d_min: -0.15
+vx_d_max: 0.8

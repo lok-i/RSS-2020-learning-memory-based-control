@@ -10,6 +10,9 @@ from copy import deepcopy
 from nn.fit import Model
 from util import env_factory
 
+# NOTE: 1/10/22
+# yet to update env_factory(conf_path) updates... currenty code broken
+
 def get_hiddens(policy):
   """
   A helper function for flattening the memory of a recurrent
@@ -27,12 +30,12 @@ def get_hiddens(policy):
   
   return torch.cat([layer.view(-1) for layer in hiddens]).numpy()
   
-def collect_point(policy, max_traj_len):
+def collect_point(policy, max_traj_len,exp_conf_path):
   """
   A helper function which collects a single memory-dynamics parameter pair
   from a trajectory.
   """
-  env = env_factory(True)()
+  env = env_factory(exp_conf_path)()
 
   chosen_timestep = np.random.randint(15, max_traj_len)
   timesteps = 0
@@ -109,7 +112,7 @@ def run_experiment(args):
 
   policy = torch.load(args.policy)
 
-  env_fn = env_factory(True)
+  env_fn = env_factory(args.exp_conf_path)
 
   layers = [int(x) for x in args.layers.split(',')]
 

@@ -25,7 +25,8 @@ def run_pca(policy):
   max_traj_len = 1000
   from sklearn.decomposition import PCA
   with torch.no_grad():
-    env = env_factory(False)()
+    # makes defauls env
+    env = env_factory()()
     state = env.reset()
 
     done = False

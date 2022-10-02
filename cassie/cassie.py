@@ -11,26 +11,41 @@ import yaml
 
 import pickle
 
+import inspect
+
+def get_default_args(func):
+    signature = inspect.signature(func)
+    return {
+        k: v.default
+        for k, v in signature.parameters.items()
+        if v.default is not inspect.Parameter.empty
+    }
+
+
 class CassieEnv:
-  def __init__(self, 
-                dynamics_randomization=False,
-                exp_conf_path='./exp_confs/default.yaml'):
+  def __init__(
+                self, 
+                exp_conf_path='./exp_confs/default.yaml'
+              ):
 
-
+    
     self.sim = CassieSim("./cassie/cassiemujoco/cassie.xml")
     self.vis = None
     self.ref_qpos0 = None
     self.ref_qvel0 = None
     
-    # print(kwargs["vx_d_max"])
-    # exit()
+    default_env_conf_path = get_default_args(self.__init__)
+    default_conf_file = open(default_env_conf_path['exp_conf_path'])
+    default_exp_conf = yaml.load(default_conf_file, Loader=yaml.FullLoader)
+
     # register all exp params thart are experimneted with across trainings
     conf_file = open(exp_conf_path)
     exp_conf = yaml.load(conf_file, Loader=yaml.FullLoader)
 
-    self.vx_d_min = exp_conf["vx_d_min"] if "vx_d_min" in exp_conf.keys() else -0.15
-    self.vx_d_max = exp_conf["vx_d_max"] if "vx_d_max" in exp_conf.keys() else 0.8
-    self.dynamics_randomization = dynamics_randomization
+
+    self.vx_d_min = exp_conf["vx_d_min"] if "vx_d_min" in exp_conf.keys() else default_exp_conf["vx_d_min"]
+    self.vx_d_max = exp_conf["vx_d_max"] if "vx_d_max" in exp_conf.keys() else default_exp_conf["vx_d_max"]
+    self.dynamics_randomization = exp_conf["dynamics_randomization"] if "dynamics_randomization" in exp_conf.keys() else default_exp_conf["dynamics_randomization"]
 
     state_est_size = 46
     clock_size     = 2
@@ -59,6 +74,7 @@ class CassieEnv:
     self.counter = 0  # number of phase cycles completed in episode
 
     # NOTE: a reference trajectory represents ONE phase cycle
+
     self.phaselen = floor(len(self.trajectory) / self.simrate) - 1
 
     # see include/cassiemujoco.h for meaning of these indices
@@ -308,8 +324,10 @@ class CassieEnv:
 
       ref_pos, _ = self.get_ref_state(self.phase + self.phase_add)
 
-      clock = [np.sin(2 * np.pi *  self.phase / self.phaselen),
-               np.cos(2 * np.pi *  self.phase / self.phaselen)]
+      clock = [
+                np.sin(2 * np.pi *  self.phase / self.phaselen),
+                np.cos(2 * np.pi *  self.phase / self.phaselen)
+               ]
       
       ext_state = np.concatenate((clock, [self.speed]))
 
