@@ -51,10 +51,26 @@ def create_logger(args):
       file.write('\n')
 
   # copy the exp_conf_file
-  # src_path = r"E:\demos\files\report\profit.txt"
-  # dst_path = r"E:\demos\files\account\profit.txt"
-  
-  shutil.copy(args.exp_conf_path, os.path.join(output_dir,conf_name))
+  default_env_conf_path = './exp_confs/default.yaml'
+
+  default_conf_file = open(default_env_conf_path)
+  default_exp_conf = yaml.load(default_conf_file, Loader=yaml.FullLoader)
+
+  given_conf_file = open(args.exp_conf_path) # remove
+  given_exp_conf = yaml.load(given_conf_file, Loader=yaml.FullLoader)
+
+  merged_exp_conf = default_exp_conf
+  for key in given_exp_conf.keys():
+
+
+      if key in merged_exp_conf.keys():
+          merged_exp_conf[key] = given_exp_conf[key]
+      else:
+          merged_exp_conf.update({key:given_exp_conf[key]})
+
+  args.exp_conf_path = os.path.join(output_dir,'exp_conf.yaml')
+  final_conf_file =  open(args.exp_conf_path,'w')
+  yaml.dump(merged_exp_conf,final_conf_file,default_flow_style=False,sort_keys=False)
 
   logger = SummaryWriter(output_dir, flush_secs=0.1)
   logger.dir = output_dir
@@ -125,8 +141,10 @@ def eval_policy(model,
     for _ in range(episodes):
       env.dynamics_randomization = False
       
-      
-      state = torch.Tensor(env.reset())
+      vx_d = None
+      state = torch.Tensor(env.reset(vx_des=vx_d))
+
+
       done = False
       traj_len = 0
       ep_return = 0

@@ -318,6 +318,14 @@ def run_experiment(args,**kwargs):
     import locale, os
     locale.setlocale(locale.LC_ALL, '')
 
+
+    # create a tensorboard logging object
+    if not args.nolog:
+      logger = create_logger(args)
+    else:
+      logger = None
+
+
     # wrapper function for creating parallelized envs
     env_fn     = env_factory(
                               args.exp_conf_path
@@ -353,11 +361,7 @@ def run_experiment(args,**kwargs):
     critic.train(False)
 
 
-    # create a tensorboard logging object
-    if not args.nolog:
-      logger = create_logger(args)
-    else:
-      logger = None
+
     
     print("Collecting normalization statistics with {} states...".format(args.prenormalize_steps))
     train_normalizer(policy, args.prenormalize_steps, max_traj_len=args.traj_len, noise=1,exp_conf_path=args.exp_conf_path)
