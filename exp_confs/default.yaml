@@ -14,6 +14,10 @@ p_gain: 30
 d_gain: 0.5
 simrate: 60
 robot: drcl_biped
+observations: # order matters to not break the old results
+  robot_state_osu: null
+  clock_osu: null
+  command_speed_osu: null
 terminations:
   total_reward_min_thresh: 0.3
   com_height_min_thresh: 0.2

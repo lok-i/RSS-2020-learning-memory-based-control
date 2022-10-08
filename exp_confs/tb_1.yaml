@@ -2,30 +2,42 @@ sim_params:
   render:
     active: false
     on_screen: false
-  model_path: "dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml"
+  model_path: "dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl_ball.xml"
   
 visualize_reference: false
 dynamics_randomization: false
 traj_path: 'dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_walk.npz' 
-traj_slice_t: [0.9,1.2] 
+traj_slice_t: [0.3,0.6] 
 vx_d_min: 0.0
-vx_d_max: 1.00
+vx_d_max: 0.50
 p_gain: 30
 d_gain: 0.5
 simrate: 60
 robot: drcl_biped
+
+observations: # order matters to not break the old results
+  robot_state_osu: null
+  clock_osu: null
+  command_speed_osu: null
+  manip_obj_pos: null
+  manip_obj_tvel: null
+
 terminations:
   total_reward_min_thresh: 0.3
   com_height_min_thresh: 0.3
+  obj_ydrift_toes_thresh: 0.15
+
 rewards:
   orientation_error_exp_weight: 5
   joint_error_exp_weight: [0.15, 0.15, 0.1, 0.05, 0.05, 0.15, 0.15, 0.1, 0.05, 0.05]
   forward_diff_thresh: 0.05
   y_vel_thresh: 0.03
   straight_diff_thresh: 0.05
+  dribble_obj_toes_thresh: 0.2
   scales:
-    orientation_error: 0.300
+    orientation_error: 0.25
     joint_error: 0.200
-    forward_diff: 0.200
-    y_vel: 0.200
-    straight_diff: 0.050    
+    forward_diff: 0.15
+    y_vel: 0.15
+    straight_diff: 0.050
+    dribble_obj_toes: 0.200    
