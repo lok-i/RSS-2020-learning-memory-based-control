@@ -9,6 +9,7 @@ import shutil
 import yaml
 
 
+
 def create_logger(args):
   from torch.utils.tensorboard import SummaryWriter
   """Use hyperparms to set a directory to output diagnostic files."""
@@ -120,7 +121,7 @@ def eval_policy(model,
     policy = torch.load(model.policy_path)
 
   with torch.no_grad():
-    steps = 0
+    
     ep_returns = []
     
     qpos_trajs = []
@@ -141,7 +142,7 @@ def eval_policy(model,
     for _ in range(episodes):
       env.dynamics_randomization = False
       
-      vx_d = None
+      vx_d = 0.5
       state = torch.Tensor(env.reset(vx_des=vx_d))
 
 
@@ -156,7 +157,12 @@ def eval_policy(model,
         policy.init_hidden_state()
       
       qpos_traj = []
+      steps = 0
+      vxs_d = [] #np.zeros(max_traj_len)
+      vxs = [] #np.zeros(max_traj_len)
       while not done and traj_len < max_traj_len:
+        # print('vx_d:',env.speed,'vx:',env.sim.data.qvel[0])
+        
 
         if return_traj:
           qpos_traj.append(env.sim.data.qpos[:])
@@ -165,13 +171,31 @@ def eval_policy(model,
 
         state = torch.Tensor(next_state)
 
+
+        # vxs_d.append(env.speed)
+        # vxs.append(env.sim.data.qvel[0])
+        # if steps % 40 == 0:
+        #   env.speed +=0.1
+        #   env.speed = np.clip(env.speed,0,1.6)
+        #   print("new speed:",env.speed)
+
+
         ep_return += reward
         traj_len += 1
         steps += 1
 
         if model.nn_type == 'extractor':
           pass
-
+      import matplotlib.pyplot as plt
+      # plt.title(" heading velocity tracking")
+      # episode_time = 0.03*np.arange(0,len(vxs_d))
+      # plt.plot(episode_time,vxs_d,label="vx_d")
+      # plt.plot(episode_time,vxs,'--',label="vx")
+      # plt.grid()
+      # plt.xlabel("Time (s)")
+      # plt.ylabel("Velocity (m/s)")
+      # plt.legend()
+      # plt.show()
       ep_returns += [ep_return]
       if verbose:
         print('Return: {:6.2f}'.format(ep_return))

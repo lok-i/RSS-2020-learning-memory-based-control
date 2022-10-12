@@ -22,8 +22,10 @@ if __name__ == "__main__":
 
     # sys.argv.remove(sys.argv[1])
 
+    parser.add_argument("--n_episodes", default=10, type=int)
+
     parser.add_argument("--traj_len", default=300, type=int)
-    parser.add_argument("--exp_log_path",  default="./log/", type=str)  # path to exp log with policy and exp conf file
+    parser.add_argument("--exp_log",  default="./log/", type=str)  # path to exp log with policy and exp conf file
 
     args = parser.parse_args()
 
@@ -32,17 +34,17 @@ if __name__ == "__main__":
     model = sys.argv[1]
     log_path = sys.argv[1].replace(poicy_network_name,'')
     
-    print("log_path: ",args.exp_log_path)
+    print("log_path: ",args.exp_log)
 
-    model = torch.load(os.path.join(args.exp_log_path,'actor.pt'))
+    model = torch.load(os.path.join(args.exp_log,'actor.pt'))
 
     returns, qpos_trajs = eval_policy(
                                       model, 
                                       max_traj_len=args.traj_len, 
-                                      episodes=5,
+                                      episodes=args.n_episodes,
                                       verbose=True,
                                       return_traj = True,
-                                      exp_conf_path = os.path.join(args.exp_log_path,'exp_conf.yaml')
+                                      exp_conf_path = os.path.join(args.exp_log,'exp_conf.yaml')
                                       )
                                       
     # save qpos traj to replay later
@@ -54,38 +56,34 @@ if __name__ == "__main__":
     from util import eval_policy
     import torch
 
-    poicy_network_name = sys.argv[1].split('/')[-1]
-
-    log_path = sys.argv[1].replace(poicy_network_name,'')
-    
-    print("log_path: ",log_path)
-    
-    
-
-    model = sys.argv[1]
-    sys.argv.remove(sys.argv[1])
+    # sys.argv.remove(sys.argv[1])
 
     parser.add_argument("--traj_len", default=300, type=int)
-    parser.add_argument("--exp_conf_path",  default="./exp_confs/default.yaml", type=str)  # path to econf file of experiment parameters
+    parser.add_argument("--exp_log",  default="./log/", type=str)  # path to exp log with policy and exp conf file
 
     args = parser.parse_args()
 
-    model = torch.load(model)
+    poicy_network_name = sys.argv[1].split('/')[-1]
+
+    model = sys.argv[1]
+    log_path = sys.argv[1].replace(poicy_network_name,'')
+    
+    print("log_path: ",args.exp_log)
+
+    model = torch.load(os.path.join(args.exp_log,'actor.pt'))
 
     returns = eval_policy_to_plot(
                                       model, 
                                       max_traj_len=args.traj_len, 
                                       visualize=True, 
-                                      episodes=5,
+                                      episodes=1,
                                       verbose=True,
                                       return_traj = True,
                                       save_logpath = log_path,
-                                      exp_conf_path = args.exp_conf_path
+                                      exp_conf_path = os.path.join(args.exp_log,'exp_conf.yaml')
                                       )
                                       
-    # # save qpos traj to replay later
-    # qpos_trajs=np.array(qpos_trajs,dtype=list)
-    # np.save(log_path+"five_epi_eval",qpos_trajs)
+
     exit()
 
   if option == 'cassie':
