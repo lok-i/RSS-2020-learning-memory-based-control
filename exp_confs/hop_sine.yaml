@@ -3,12 +3,21 @@ sim_params:
     active: false
     on_screen: false
   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml
+  terrain:
+    sinusoidal:
+      xlim_start: [0.48] # kim_0.04_hfield
+      xlim_end: [2.52] # kim_0.04_hfield
+      ylim_start: [-0.48] # kim_0.04_hfield
+      ylim_end: [0.48] # kim_0.04_hfield
+      phase_offset: [0]
+      ang_freq: [7.5,10] # 7.5 to 10
+      amplitude: [0.025,0.085] # 0.025 to 0.085
 visualize_reference: false
 dynamics_randomization: false
 traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_hop.npz
 traj_slice_t:
+- 0.0
 - 0.3
-- 0.6
 vx_d_min: 0.0
 vx_d_max: 1.0
 p_gain: 30

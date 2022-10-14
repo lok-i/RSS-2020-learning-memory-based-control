@@ -3,12 +3,21 @@ sim_params:
     active: false
     on_screen: false
   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml
+  terrain:
+    upstairs_plateau_downstairs:
+      xlim_start: [0.48] # kim_0.04_hfield
+      xlim_end: [2.52] # kim_0.04_hfield
+      ylim_start: [-0.48] # kim_0.04_hfield
+      ylim_end: [0.48] # kim_0.04_hfield
+      step_run: [0.16, 0.24] # kim_0.04_hfield
+      step_rise: [0.025,0.075]
+      fraction_len_plateau: [0.1] 
 visualize_reference: false
 dynamics_randomization: false
 traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_hop.npz
 traj_slice_t:
-- 0.9
-- 1.2
+- 0.0
+- 0.3
 vx_d_min: 0.0
 vx_d_max: 1.0
 p_gain: 30
