@@ -16,14 +16,13 @@ if __name__ == "__main__":
   option = sys.argv[1]
   sys.argv.remove(sys.argv[1])
 
-  if option == 'eval':
+  if option == 'eval_trng':
     from util import eval_policy
     import torch
 
     parser.add_argument("--n_episodes", default=10, type=int)
-
     parser.add_argument("--traj_len", default=300, type=int)
-    parser.add_argument("--exp_log",  default="./log/", type=str)  # path to exp log with policy and exp conf file
+    parser.add_argument("--trng_log",  default="./log/", type=str)  # path to exp log with policy and exp conf file
 
     args = parser.parse_args()
 
@@ -32,25 +31,24 @@ if __name__ == "__main__":
     model = sys.argv[1]
     log_path = sys.argv[1].replace(poicy_network_name,'')
     
-    print("log_path: ",args.exp_log)
+    print("log_path: ",args.trng_log)
 
-    model = torch.load(os.path.join(args.exp_log,'actor.pt'))
+    model = torch.load(os.path.join(args.trng_log,'actor.pt'))
 
-    returns, qpos_trajs = eval_policy(
-                                      model, 
-                                      max_traj_len=args.traj_len, 
-                                      episodes=args.n_episodes,
-                                      verbose=True,
-                                      return_traj = True,
-                                      exp_conf_path = os.path.join(args.exp_log,'exp_conf.yaml')
-                                      )
-                                      
+    returns = eval_policy(
+                            model, 
+                            max_traj_len=args.traj_len, 
+                            episodes=args.n_episodes,
+                            verbose=True,
+                            exp_conf_path = os.path.join(args.trng_log,'exp_conf.yaml')
+                            )
+                            
     # save qpos traj to replay later
     # qpos_trajs=np.array(qpos_trajs,dtype=list)
     # np.save(log_path+"five_epi_eval",qpos_trajs)
     exit()
 
-  if option == 'eval_plot':
+  if option == 'eval_tstng':
     from util import eval_policy
     import yaml
     import torch
@@ -84,9 +82,10 @@ if __name__ == "__main__":
       tstng_exp_conf = trng_exp_conf
     else:
       tstng_exp_conf.update(tstng_conf)
+      tstng_exp_conf.pop('test_setup')
 
     tstng_exp_conf_file =  open(tstng_exp_conf_path,'w')
-    tstng_exp_conf.pop('test_setup')
+    
     yaml.dump(tstng_exp_conf,tstng_exp_conf_file,default_flow_style=False,sort_keys=False)
 
     print("log_path: ",tstng_conf['test_setup']['exp_log_path'])
@@ -94,13 +93,14 @@ if __name__ == "__main__":
 
     model = torch.load(os.path.join(tstng_conf['test_setup']['exp_log_path'],'actor.pt'))
 
-    returns, qpos_trajs = eval_policy_to_plot(
+    returns = eval_policy_to_plot(
                                       model, 
                                       max_traj_len=tstng_conf['test_setup']['traj_len'], 
                                       episodes=tstng_conf['test_setup']['n_episodes'],
                                       verbose=True,
                                       return_traj = True,
-                                      exp_conf_path = tstng_exp_conf_path
+                                      exp_conf_path = tstng_exp_conf_path,
+                                      plotter = tstng_conf['test_setup']['plotter']
                                       )
 
   if option == 'cassie':

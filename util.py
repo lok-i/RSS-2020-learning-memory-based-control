@@ -2,6 +2,7 @@
 
 from cmath import exp
 from math import fabs
+from tkinter import E
 import torch
 import hashlib
 import os
@@ -110,7 +111,6 @@ def eval_policy(model,
                 episodes=5, 
                 max_traj_len=400, 
                 verbose=True, 
-                return_traj=False,
                 exp_conf_path = './exp_confs/default.yaml'
                 ):
   if env is None:
@@ -125,43 +125,19 @@ def eval_policy(model,
     steps = 0
     ep_returns = []
     
-    qpos_trajs = []
-
-
-    if env.sim.sim_params['render']['active']:
-      env.sim.viewer._paused = True
-      env.sim.viewer.cam.distance = 3
-      cam_pos = [0.0, 0.0, 0.75]
-
-      for i in range(3):        
-          env.sim.viewer.cam.lookat[i]= cam_pos[i] 
-      env.sim.viewer.cam.elevation = -15
-      env.sim.viewer.cam.azimuth = 180
-
-
-
     for _ in range(episodes):
       env.dynamics_randomization = False
       
-      vx_d = 1.8
-      state = torch.Tensor(env.reset(vx_des=vx_d))
-
-
+      state = torch.Tensor(env.reset())
       done = False
       traj_len = 0
       ep_return = 0
 
-    
-      
-
       if hasattr(policy, 'init_hidden_state'):
         policy.init_hidden_state()
       
-      qpos_traj = []
       while not done and traj_len < max_traj_len:
 
-        if return_traj:
-          qpos_traj.append(env.sim.data.qpos[:])
         action = policy(state)
         next_state, reward, done, _ = env.step(action.numpy())
 
@@ -178,14 +154,7 @@ def eval_policy(model,
       if verbose:
         print('Return: {:6.2f}'.format(ep_return))
       
-      if return_traj:
-        qpos_traj = np.array(qpos_traj,dtype=list)
-        qpos_trajs.append(qpos_traj)
-  
-  if return_traj:
-    return np.mean(ep_returns),qpos_trajs
-  else:
-    return np.mean(ep_returns)
+  return np.mean(ep_returns)
 
 def eval_policy_to_plot(
                 model, 
@@ -194,7 +163,8 @@ def eval_policy_to_plot(
                 max_traj_len=400, 
                 verbose=True, 
                 return_traj=False,
-                exp_conf_path = './exp_confs/default.yaml'
+                exp_conf_path = './exp_confs/default.yaml',
+                plotter=None
                 ):
   if env is None:
     env = env_factory(exp_conf_path)()
@@ -205,11 +175,8 @@ def eval_policy_to_plot(
     policy = torch.load(model.policy_path)
 
   with torch.no_grad():
-    steps = 0
+    
     ep_returns = []
-
-
-
 
     for _ in range(episodes):
       env.dynamics_randomization = False
@@ -218,14 +185,20 @@ def eval_policy_to_plot(
       state = torch.Tensor(env.reset(vx_des=vx_d))
 
       if env.sim.sim_params['render']['active']:
-        env.sim.viewer._paused = True
+      
+      #   for att in dir(env.sim.viewer):
+      #     if '_' in att and '__' not in att: 
+      #       print(att,getattr(env.sim.viewer,att))
+        env.sim.viewer._render_every_frame = False
+        env.sim.viewer._paused = False
         env.sim.viewer.cam.distance = 3
         cam_pos = [0.0, 0.0, 0.75]
 
         for i in range(3):        
             env.sim.viewer.cam.lookat[i]= cam_pos[i] 
         env.sim.viewer.cam.elevation = -15
-        env.sim.viewer.cam.azimuth = 180
+        env.sim.viewer.cam.azimuth = 90
+
 
 
       done = False
@@ -239,10 +212,8 @@ def eval_policy_to_plot(
       if hasattr(policy, 'init_hidden_state'):
         policy.init_hidden_state()
       
-
+      steps = 0
       while not done and traj_len < max_traj_len:
-
-
         action = policy(state)
         next_state, reward, done, _ = env.step(action.numpy())
         
@@ -267,14 +238,15 @@ def eval_policy_to_plot(
       if verbose:
         print('Return: {:6.2f}'.format(ep_return))
       
-      import matplotlib.pyplot as plt
-      rollout_timestep = env.dt*np.arange(steps)
-      plt.plot(rollout_timestep,vel_head_d,label='vel_desired')
-      plt.plot(rollout_timestep,vel_head,'--',label='vel_actual')
-      plt.legend()
-      plt.grid()
-      plt.tight_layout()
-      plt.show()
+      if plotter != None:
+        import matplotlib.pyplot as plt
+        rollout_timestep = env.dt*np.arange(steps)
+        plt.plot(rollout_timestep,vel_head_d,label='vel_desired')
+        plt.plot(rollout_timestep,vel_head,'--',label='vel_actual')
+        plt.legend()
+        plt.grid()
+        plt.tight_layout()
+        plt.show()
 
   return np.mean(ep_returns)
 

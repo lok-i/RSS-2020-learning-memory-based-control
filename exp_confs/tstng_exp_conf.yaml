@@ -5,21 +5,21 @@ sim_params:
     init_viewer_every_reset: true
   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml
   terrain:
-    upstairs_plateau_downstairs:
+    hills:
       xlim_start:
-      - 0.3
+      - 0.48
       xlim_end:
-      - 2.3
+      - 2.52
       ylim_start:
-      - -1
+      - -0.48
       ylim_end:
-      - 1
-      step_run:
-      - 0.1
-      step_rise:
-      - 0.05
-      fraction_len_plateau:
+      - 0.48
+      octaves:
+      - 15
+      - 25
+      amplitude:
       - 0.2
+      - 0.3
 visualize_reference: false
 dynamics_randomization: false
 traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_walk.npz

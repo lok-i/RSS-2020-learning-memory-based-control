@@ -1,7 +1,11 @@
+# comment abbreviations
+# kim_0.04_hfield:keep it as a integer multiple of 0.004, precision of the hfield
+
 test_setup:
-  exp_log_path: ./logs/pw_1
+  exp_log_path: ./logs/sub_optimal_policices/pw_1
   traj_len: 300
-  n_episodes: 1
+  n_episodes: 5
+  plotter: null
 sim_params:
   render:
     active: true
@@ -9,18 +13,28 @@ sim_params:
     init_viewer_every_reset: true
   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml
   terrain:
-    # hills:
-    #   xlim_start: [0.3]
-    #   xlim_end: [1.3]
-    #   ylim_start: [-1]
-    #   ylim_end: [1]
-    #   octaves: [25]
-    #   amplitude: [0.5]
-    upstairs_plateau_downstairs:
-      xlim_start: [0.3]
-      xlim_end: [2.3]
-      ylim_start: [-1]
-      ylim_end: [1]
-      step_run: [0.1]
-      step_rise: [0.05]
-      fraction_len_plateau: [0.2] 
+    hills:
+      xlim_start: [0.48] # kim_0.04_hfield
+      xlim_end: [2.52] # kim_0.04_hfield
+      ylim_start: [-0.48] # kim_0.04_hfield
+      ylim_end: [0.48] # kim_0.04_hfield
+      octaves: [15,25] # 15 to 25
+      amplitude: [0.2,0.3]
+
+    # sinusoidal:
+    #   xlim_start: [0.48] # kim_0.04_hfield
+    #   xlim_end: [2.52] # kim_0.04_hfield
+    #   ylim_start: [-0.48] # kim_0.04_hfield
+    #   ylim_end: [0.48] # kim_0.04_hfield
+    #   phase_offset: [0]
+    #   ang_freq: [7.5,10] # 7.5 to 10
+    #   amplitude: [0.025,0.085] # 0.025 to 0.085
+
+    # upstairs_plateau_downstairs:
+    #   xlim_start: [0.48] # kim_0.04_hfield
+    #   xlim_end: [2.52] # kim_0.04_hfield
+    #   ylim_start: [-0.48] # kim_0.04_hfield
+    #   ylim_end: [0.48] # kim_0.04_hfield
+    #   step_run: [0.16, 0.24] # kim_0.04_hfield
+    #   step_rise: [0.025,0.075]
+    #   fraction_len_plateau: [0.1] 
