@@ -143,7 +143,7 @@ def eval_policy(model,
     for _ in range(episodes):
       env.dynamics_randomization = False
       
-      vx_d = None
+      vx_d = 1.8
       state = torch.Tensor(env.reset(vx_des=vx_d))
 
 
@@ -193,11 +193,8 @@ def eval_policy_to_plot(
                 episodes=5, 
                 max_traj_len=400, 
                 verbose=True, 
-                visualize=False,
-                return_traj=False, 
-                save_logpath = None,
+                return_traj=False,
                 exp_conf_path = './exp_confs/default.yaml'
-
                 ):
   if env is None:
     env = env_factory(exp_conf_path)()
@@ -209,91 +206,75 @@ def eval_policy_to_plot(
 
   with torch.no_grad():
     steps = 0
-    
-    
-    # qpos_trajs = []
+    ep_returns = []
 
-    # data collection
 
-    vxs_des = np.arange(-4,4,0.2)
-    # vxs_des = np.arange(-2.0,-1.6,0.2)
 
-    n_exps = vxs_des.shape[0]
-    n_trials = episodes
 
-    ep_returns = np.zeros((n_exps,n_trials),dtype=np.float32)
-    vxs_0 = np.zeros((n_exps,n_trials),dtype=np.float32)
-    dist_travelled = np.zeros((n_exps,n_trials),dtype=np.float32)
-    e_vx_norm_avg = np.zeros((n_exps,n_trials),dtype=np.float32)
-    
-    for exp_no,vx_d in enumerate(vxs_des):
-      print("exp no:",exp_no,'vx_des',vx_d)
-      for trial_no in range(n_trials):
-        env.dynamics_randomization = False
+    for _ in range(episodes):
+      env.dynamics_randomization = False
+      
+      vx_d = 0
+      state = torch.Tensor(env.reset(vx_des=vx_d))
 
-        state = torch.Tensor(env.reset(
-                                      vx_des=vx_d
+      if env.sim.sim_params['render']['active']:
+        env.sim.viewer._paused = True
+        env.sim.viewer.cam.distance = 3
+        cam_pos = [0.0, 0.0, 0.75]
 
-                                      ))
+        for i in range(3):        
+            env.sim.viewer.cam.lookat[i]= cam_pos[i] 
+        env.sim.viewer.cam.elevation = -15
+        env.sim.viewer.cam.azimuth = 180
+
+
+      done = False
+      traj_len = 0
+      ep_return = 0
+
+      # set all loggers
+      vel_head_d = []
+      vel_head = []
+  
+      if hasattr(policy, 'init_hidden_state'):
+        policy.init_hidden_state()
+      
+
+      while not done and traj_len < max_traj_len:
+
+
+        action = policy(state)
+        next_state, reward, done, _ = env.step(action.numpy())
         
-        vxs_0[exp_no][trial_no] = env.ref_qvel0[0]        
-        done = False
-        traj_len = 0
-        ep_return = 0
-        vx_error_norm_avg = 0 
-        if hasattr(policy, 'init_hidden_state'):
-          policy.init_hidden_state()
-        
-        # qpos_traj = []
-        qpos = None
-        while not done and traj_len < max_traj_len:
-          
+        # update values
+        vel_head_d.append(env.speed)
+        vel_head.append(env.sim.data.qvel[0])
+        if steps % 40 == 0:
+          env.speed += 0.1 #np.random.choice([0.1,-0.1])
+          env.speed = np.clip(env.speed,0,1.6)
+          print("updated speed command:",env.speed)
 
-          # print(type(env.sim.qpos()))
-          # qpos_traj.append(env.sim.qpos())
-          
-          action = policy(state)
-          next_state, reward, done, _ = env.step(action.numpy())
-          qpos = env.sim.qpos()
+        state = torch.Tensor(next_state)
 
-          vx_error_norm = fabs(env.sim.qvel()[0] - env.speed)
-          vx_error_norm_avg += vx_error_norm
-          # print(next_state.shape)
+        ep_return += reward
+        traj_len += 1
+        steps += 1
 
-          # if visualize:
-          #   env.render()
-          state = torch.Tensor(next_state)
+        if model.nn_type == 'extractor':
+          pass
 
-          ep_return += reward
-          traj_len += 1
-          steps += 1
-
-          if model.nn_type == 'extractor':
-            pass
-
-
-        if verbose:
-          print('\ttrial no:',trial_no,'Return: {:6.2f}'.format(ep_return))
-          
-        # qpos_traj = np.array(qpos_traj,dtype=list)
-        # qpos_trajs.append(qpos_traj)
-        
-        ep_returns[exp_no][trial_no] = ep_return
-        e_vx_norm_avg[exp_no][trial_no] = vx_error_norm_avg / steps 
-        delta_dist = qpos[0] - env.ref_qpos0[0]
-        dist_travelled[exp_no][trial_no] = delta_dist
-        # exit()
-        
-  if save_logpath != None:
-    np.savez_compressed(
-                        save_logpath+'vx_d_exps',
-                        vxs_des = vxs_des,
-                        vxs_0 = vxs_0,
-                        dist_travelled = dist_travelled,
-                        ep_returns = ep_returns,
-                        e_vx_norm_avg = e_vx_norm_avg,
-
-                        )
+      ep_returns += [ep_return]
+      if verbose:
+        print('Return: {:6.2f}'.format(ep_return))
+      
+      import matplotlib.pyplot as plt
+      rollout_timestep = env.dt*np.arange(steps)
+      plt.plot(rollout_timestep,vel_head_d,label='vel_desired')
+      plt.plot(rollout_timestep,vel_head,'--',label='vel_actual')
+      plt.legend()
+      plt.grid()
+      plt.tight_layout()
+      plt.show()
 
   return np.mean(ep_returns)
 

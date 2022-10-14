@@ -20,8 +20,6 @@ if __name__ == "__main__":
     from util import eval_policy
     import torch
 
-    # sys.argv.remove(sys.argv[1])
-
     parser.add_argument("--n_episodes", default=10, type=int)
 
     parser.add_argument("--traj_len", default=300, type=int)
@@ -48,43 +46,62 @@ if __name__ == "__main__":
                                       )
                                       
     # save qpos traj to replay later
-    qpos_trajs=np.array(qpos_trajs,dtype=list)
-    np.save(log_path+"five_epi_eval",qpos_trajs)
+    # qpos_trajs=np.array(qpos_trajs,dtype=list)
+    # np.save(log_path+"five_epi_eval",qpos_trajs)
     exit()
 
   if option == 'eval_plot':
     from util import eval_policy
+    import yaml
     import torch
-
-    # sys.argv.remove(sys.argv[1])
-
-    parser.add_argument("--traj_len", default=300, type=int)
-    parser.add_argument("--exp_log",  default="./log/", type=str)  # path to exp log with policy and exp conf file
-
+    parser.add_argument("--load_trng_conf",          action='store_true')
+    parser.add_argument("--tstng_conf_path",  default="./exp_confs/test_policy.yaml", type=str)  # path to testing log with policy and exp conf file
     args = parser.parse_args()
 
-    poicy_network_name = sys.argv[1].split('/')[-1]
 
-    model = sys.argv[1]
-    log_path = sys.argv[1].replace(poicy_network_name,'')
+
+    if not os.path.isfile(args.tstng_conf_path):
+      print(" testing conf file absent, create one at the given path with test_params")
+      exit()
+    tstng_conf_name = args.tstng_conf_path.split('/')[-1]
+    tstng_exp_conf_path = args.tstng_conf_path.replace(tstng_conf_name,'tstng_exp_conf.yaml')
+
+    if not os.path.isfile(tstng_exp_conf_path):
+      tstng_exp_conf_file =  open(tstng_exp_conf_path,'w')
+      tstng_exp_conf_file.close()
+
+    tstng_conf_file = open(args.tstng_conf_path)
+    tstng_conf = yaml.load(tstng_conf_file, Loader=yaml.FullLoader)
+
+    trng_exp_conf_file = open(os.path.join(tstng_conf['test_setup']['exp_log_path'],'exp_conf.yaml')) # remove
+    trng_exp_conf = yaml.load(trng_exp_conf_file, Loader=yaml.FullLoader)
     
-    print("log_path: ",args.exp_log)
+    tstng_exp_conf_file = open(tstng_exp_conf_path)
+    tstng_exp_conf = yaml.load(tstng_exp_conf_file, Loader=yaml.FullLoader)    
+    tstng_exp_conf_file.close()
+    
+    if args.load_trng_conf:
+      tstng_exp_conf = trng_exp_conf
+    else:
+      tstng_exp_conf.update(tstng_conf)
 
-    model = torch.load(os.path.join(args.exp_log,'actor.pt'))
+    tstng_exp_conf_file =  open(tstng_exp_conf_path,'w')
+    tstng_exp_conf.pop('test_setup')
+    yaml.dump(tstng_exp_conf,tstng_exp_conf_file,default_flow_style=False,sort_keys=False)
 
-    returns = eval_policy_to_plot(
+    print("log_path: ",tstng_conf['test_setup']['exp_log_path'])
+    print("tstng_exp_conf_path:",tstng_exp_conf_path)
+
+    model = torch.load(os.path.join(tstng_conf['test_setup']['exp_log_path'],'actor.pt'))
+
+    returns, qpos_trajs = eval_policy_to_plot(
                                       model, 
-                                      max_traj_len=args.traj_len, 
-                                      visualize=True, 
-                                      episodes=1,
+                                      max_traj_len=tstng_conf['test_setup']['traj_len'], 
+                                      episodes=tstng_conf['test_setup']['n_episodes'],
                                       verbose=True,
                                       return_traj = True,
-                                      save_logpath = log_path,
-                                      exp_conf_path = os.path.join(args.exp_log,'exp_conf.yaml')
+                                      exp_conf_path = tstng_exp_conf_path
                                       )
-                                      
-
-    exit()
 
   if option == 'cassie':
     from cassie.udp import run_udp
