@@ -5,8 +5,7 @@ from util import eval_policy_to_plot
 if __name__ == "__main__":
   import sys, argparse, time, os
   parser = argparse.ArgumentParser()
-  print("RSS 2020: Learning Memory-Based Control for Human-Scale Bipedal Locomotion")
-  print("\tJonah Siekmann, Srikar Valluri, Jeremy Dao, Lorenzo Bermillo, Helei Duan, Alan Fern, Jonathan Hurst")
+
 
   if len(sys.argv) < 2:
     print("Usage: python main.py [option]", sys.argv)

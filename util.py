@@ -181,8 +181,7 @@ def eval_policy_to_plot(
     for _ in range(episodes):
       env.dynamics_randomization = False
       
-      vx_d = 0
-      state = torch.Tensor(env.reset(vx_des=vx_d))
+      state = torch.Tensor(env.reset())
 
       if env.sim.sim_params['render']['active']:
       
@@ -190,7 +189,7 @@ def eval_policy_to_plot(
       #     if '_' in att and '__' not in att: 
       #       print(att,getattr(env.sim.viewer,att))
         env.sim.viewer._render_every_frame = False
-        env.sim.viewer._paused = False
+        env.sim.viewer._paused = True
         env.sim.viewer.cam.distance = 3
         cam_pos = [0.0, 0.0, 0.75]
 
@@ -218,12 +217,13 @@ def eval_policy_to_plot(
         next_state, reward, done, _ = env.step(action.numpy())
         
         # update values
-        vel_head_d.append(env.speed)
+        vel_head_d.append(env.cmnd_base_lvel[0])
         vel_head.append(env.sim.data.qvel[0])
+
         if steps % 40 == 0:
-          env.speed += 0.1 #np.random.choice([0.1,-0.1])
-          env.speed = np.clip(env.speed,0,1.6)
-          print("updated speed command:",env.speed)
+          env.cmnd_base_lvel[0] += 0.1 #np.random.choice([0.1,-0.1])
+          env.cmnd_base_lvel[0] = np.clip(env.cmnd_base_lvel[0],0,1.6)
+          print("updated speed command:",env.cmnd_base_lvel[0])
 
         state = torch.Tensor(next_state)
 
@@ -268,7 +268,16 @@ def env_factory(
     
     
     if 'robot' in exp_conf.keys() and exp_conf['robot'] == 'drcl_biped':
-      from dtsd.envs.biped_osudrl import biped_env
+      import importlib
+
+      if 'env_entry' in exp_conf.keys():
+        env_class_name = exp_conf['env_entry'].split('.')[-1]
+        env_file_entry = exp_conf['env_entry'].replace('.'+env_class_name,'')
+        env_module = importlib.import_module(env_file_entry)
+        biped_env = getattr(env_module,env_class_name) 
+      else:
+        biped_env = importlib.import_module('dtsd.envs.biped_osudrl').biped_env
+
       return partial(
                       biped_env, 
                       exp_conf_path = exp_conf_path,
