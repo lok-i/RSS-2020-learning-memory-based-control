@@ -6,10 +6,15 @@ test_setup:
   n_episodes: 5
   plotter: null
 
-initialisations:
-  set_robot_on_traj: null
-  # set_robot_nominal: null
-  set_obj_vel_x: [-0.5,0.5]
-  set_obj_vel_y: [-1.5,1.5]
-  set_obj_pos_x: [0.1,0.15]
-  set_obj_pos_y: [-0.08,0.08]
+sim_params:
+  render:
+    active: true
+    on_screen: true
+    init_viewer_every_reset: false
+    target_marker: cylinder
+  model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml
+
+follow_task:
+  target_gen_scheme: within_circle
+  target_max_disp: 0.5
+  target_reach_thresh: 0.1

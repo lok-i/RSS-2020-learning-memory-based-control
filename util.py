@@ -217,13 +217,14 @@ def eval_policy_to_plot(
         next_state, reward, done, _ = env.step(action.numpy())
         
         # update values
-        vel_head_d.append(env.cmnd_base_lvel[0])
-        vel_head.append(env.sim.data.qvel[0])
-
-        if steps % 40 == 0:
-          env.cmnd_base_lvel[0] += 0.1 #np.random.choice([0.1,-0.1])
-          env.cmnd_base_lvel[0] = np.clip(env.cmnd_base_lvel[0],0,1.6)
-          print("updated speed command:",env.cmnd_base_lvel[0])
+        # vel_head_d.append(env.cmnd_base_lvel[0])
+        # vel_head.append(env.sim.data.qvel[0])
+        # env.speed = 0.5
+        # print(env.speed)
+        # if steps % 40 == 0:
+        #   env.cmnd_base_lvel[0] += 0.1 #np.random.choice([0.1,-0.1])
+        #   env.cmnd_base_lvel[0] = np.clip(env.cmnd_base_lvel[0],0,1.6)
+        #   print("updated speed command:",env.cmnd_base_lvel[0])
 
         state = torch.Tensor(next_state)
 

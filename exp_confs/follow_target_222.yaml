@@ -1,38 +1,33 @@
+env_entry: dtsd.envs.biped_locomanip.biped_env
 sim_params:
   render:
     active: false
     on_screen: false
+    init_viewer_every_reset: false
+    target_marker: cylinder
   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml
-  terrain:
-    sinusoidal:
-      xlim_start: [0.48] # kim_0.04_hfield
-      xlim_end: [2.52] # kim_0.04_hfield
-      ylim_start: [-0.48] # kim_0.04_hfield
-      ylim_end: [0.48] # kim_0.04_hfield
-      phase_offset: [0]
-      ang_freq: [7.5,10] # 7.5 to 10
-      amplitude: [0.025,0.085] # 0.025 to 0.085
 visualize_reference: false
 dynamics_randomization: false
 traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_walk.npz
 traj_slice_t:
 - 0.3
 - 0.6
-vx_d_min: 0.0
-vx_d_max: 1.0
 p_gain: 30
 d_gain: 0.5
 simrate: 60
 robot: drcl_biped
-observations: # order matters to not break the old results
+initialisations:
+  set_robot_nominal: null
+observations:
   robot_state_osu: null
   clock_osu: null
-  command_speed_osu: null
+  target_pos: null
 terminations:
   total_reward_min_thresh: 0.3
   com_height_min_thresh: 0.3
 rewards:
   orientation_error_exp_weight: 5
+  target_reach_thresh: 0.05
   joint_error_exp_weight:
   - 0.15
   - 0.15
@@ -44,12 +39,11 @@ rewards:
   - 0.1
   - 0.05
   - 0.05
-  forward_diff_thresh: 0.05
-  y_vel_thresh: 0.03
-  straight_diff_thresh: 0.05
   scales:
-    orientation_error: 0.3
-    joint_error: 0.2
-    forward_diff: 0.2
-    y_vel: 0.2
-    straight_diff: 0.05
+    orientation_error: 0.4
+    joint_error_nominal: 0.1
+    target_robot_pos_diff: 0.5
+follow_task:
+  target_gen_scheme: within_circle
+  target_max_disp: 0.5
+  target_reach_thresh: 0.05
