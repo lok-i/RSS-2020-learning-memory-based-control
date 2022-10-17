@@ -180,8 +180,13 @@ def eval_policy_to_plot(
 
     for _ in range(episodes):
       env.dynamics_randomization = False
-      
+
+
+
+
+
       state = torch.Tensor(env.reset())
+
 
       if env.sim.sim_params['render']['active']:
       
@@ -212,19 +217,35 @@ def eval_policy_to_plot(
         policy.init_hidden_state()
       
       steps = 0
+      # initialised to 0, hacky though.. suddn drop to 0 from reset 
+      try:
+        env.speed = 0.0 #np.random.choice([0.1,-0.1])
+      except:        
+        env.cmnd_base_tvel[0] = 0 #np.random.choice([0.1,-0.1])
+
       while not done and traj_len < max_traj_len:
+        
+        
+        
         action = policy(state)
         next_state, reward, done, _ = env.step(action.numpy())
         
-        # update values
-        # vel_head_d.append(env.cmnd_base_lvel[0])
-        # vel_head.append(env.sim.data.qvel[0])
-        # env.speed = 0.5
-        # print(env.speed)
-        # if steps % 40 == 0:
-        #   env.cmnd_base_lvel[0] += 0.1 #np.random.choice([0.1,-0.1])
-        #   env.cmnd_base_lvel[0] = np.clip(env.cmnd_base_lvel[0],0,1.6)
-        #   print("updated speed command:",env.cmnd_base_lvel[0])
+        try:
+          if steps % 40 == 0:
+            env.speed += 0.1 #np.random.choice([0.1,-0.1])
+            env.speed = np.clip(env.speed,0,1.6)
+            print("updated speed command:",env.speed)
+          vel_head_d.append(env.speed)
+
+        except:
+          
+          if steps % 40 == 0:
+            env.cmnd_base_tvel[0] += 0.1 #np.random.choice([0.1,-0.1])
+            env.cmnd_base_tvel[0] = np.clip(env.cmnd_base_lvel[0],0,1.6)
+            print("updated speed command:",env.cmnd_base_lvel[0])
+          vel_head_d.append(env.cmnd_base_tvel[0])
+
+        vel_head.append(env.sim.data.qvel[ env.model_prop['drcl_biped']['ids']['base_tvel'][0] ])
 
         state = torch.Tensor(next_state)
 
