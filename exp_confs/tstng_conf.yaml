@@ -1,7 +1,7 @@
 # comment abbreviations
 # kim_0.04_hfield:keep it as a integer multiple of 0.004, precision of the hfield
 test_setup:
-  exp_log_path: ./logs/tb_1
+  exp_log_path: ./logs/follow_target_111
   traj_len: 300
   n_episodes: 5
   plotter: null
@@ -13,8 +13,3 @@ sim_params:
     init_viewer_every_reset: false
     target_marker: cylinder
   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml
-
-follow_task:
-  target_gen_scheme: within_circle
-  target_max_disp: 0.5
-  target_reach_thresh: 0.1

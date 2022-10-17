@@ -1,7 +1,7 @@
 sim_params:
   render:
-    active: false
-    on_screen: false
+    active: true
+    on_screen: true
     init_viewer_every_reset: false
   model_path: "dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml"
 
