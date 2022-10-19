@@ -1,42 +1,25 @@
-env_entry: dtsd.envs.biped_skate.biped_env
 sim_params:
   render:
-    active: false
-    on_screen: false
-    init_viewer_every_reset: false
-  model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_skateboard.xml
+    active: true
+    on_screen: true
+    init_viewer_every_reset: true
+  model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml
 visualize_reference: false
 dynamics_randomization: false
-traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_walk.npz
+traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_hop.npz
 traj_slice_t:
+- 0.0
 - 0.3
-- 0.6
-commands:
-  base_tvel_x:
-  - 0
-  - 1.5
-  base_tvel_y:
-  - 0
+vx_d_min: 0.0
+vx_d_max: 1.0
 p_gain: 30
 d_gain: 0.5
 simrate: 60
 robot: drcl_biped
-initialisations:
-  set_robot_base_tvel_x:
-  - 0
-  - 3
-  set_robot_base_pos_x:
-  - -7.5
-  set_robot_base_pos_z:
-  - 0.5
-  - 0.6
-  set_skateboard_below_ltoe: null
-  set_robot_on_skateboard_pose: null
 observations:
   robot_state_osu: null
   clock_osu: null
   command_speed_osu: null
-  skateboard_wheel_vel: null
 terminations:
   total_reward_min_thresh: 0.3
   com_height_min_thresh: 0.3
@@ -58,7 +41,7 @@ rewards:
   straight_diff_thresh: 0.05
   scales:
     orientation_error: 0.3
-    joint_error_ref: 0.2
+    joint_error: 0.2
     forward_diff: 0.2
     y_vel: 0.2
     straight_diff: 0.05

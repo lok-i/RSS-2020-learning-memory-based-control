@@ -219,12 +219,11 @@ def eval_policy_to_plot(
       steps = 0
       # initialised to 0, hacky though.. suddn drop to 0 from reset 
       try:
-        env.speed = 0.0 #np.random.choice([0.1,-0.1])
+        env.speed = 0.5 #0.0 #np.random.choice([0.1,-0.1])
       except:        
-        env.cmnd_base_tvel[0] = 0 #np.random.choice([0.1,-0.1])
+        env.cmnd_base_tvel[0] = 0. #np.random.choice([0.1,-0.1])
 
       while not done and traj_len < max_traj_len:
-        
         
         
         action = policy(state)
@@ -233,7 +232,7 @@ def eval_policy_to_plot(
         try:
           if steps % 40 == 0:
             env.speed += 0.1 #np.random.choice([0.1,-0.1])
-            env.speed = np.clip(env.speed,0,1.6)
+            env.speed = np.clip(env.speed,0,1.7)
             print("updated speed command:",env.speed)
           vel_head_d.append(env.speed)
 
@@ -241,8 +240,8 @@ def eval_policy_to_plot(
           
           if steps % 40 == 0:
             env.cmnd_base_tvel[0] += 0.1 #np.random.choice([0.1,-0.1])
-            env.cmnd_base_tvel[0] = np.clip(env.cmnd_base_lvel[0],0,1.6)
-            print("updated speed command:",env.cmnd_base_lvel[0])
+            env.cmnd_base_tvel[0] = np.clip(env.cmnd_base_tvel[0],0,1.6)
+            print("updated speed command:",env.cmnd_base_tvel[0])
           vel_head_d.append(env.cmnd_base_tvel[0])
 
         vel_head.append(env.sim.data.qvel[ env.model_prop['drcl_biped']['ids']['base_tvel'][0] ])
