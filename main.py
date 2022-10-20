@@ -53,7 +53,6 @@ if __name__ == "__main__":
     import torch
     parser.add_argument("--load_trng_conf",          action='store_true')
     parser.add_argument("--render_onscreen",          action='store_true')
-
     parser.add_argument("--tstng_conf_path",  default="./exp_confs/test_policy.yaml", type=str)  # path to testing log with policy and exp conf file
     args = parser.parse_args()
 
@@ -85,8 +84,7 @@ if __name__ == "__main__":
       tstng_exp_conf.update(tstng_conf)
       tstng_exp_conf.pop('test_setup')
 
-    tstng_exp_conf['sim_params']['render']['active'] = args.render_onscreen
-    tstng_exp_conf['sim_params']['render']['on_screen'] = args.render_onscreen
+    tstng_exp_conf['sim_params']['render'] = args.render_onscreen
 
     tstng_exp_conf_file =  open(tstng_exp_conf_path,'w')
     yaml.dump(tstng_exp_conf,tstng_exp_conf_file,default_flow_style=False,sort_keys=False)

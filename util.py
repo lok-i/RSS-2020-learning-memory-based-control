@@ -188,7 +188,7 @@ def eval_policy_to_plot(
       state = torch.Tensor(env.reset())
 
 
-      if env.sim.sim_params['render']['active']:
+      if env.sim.sim_params['render']:
       
       #   for att in dir(env.sim.viewer):
       #     if '_' in att and '__' not in att: 

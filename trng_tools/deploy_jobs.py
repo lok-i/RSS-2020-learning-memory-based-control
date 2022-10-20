@@ -15,7 +15,7 @@ if __name__ == '__main__':
             
             if exp_name != 'default' and ('tstng' not in exp_name):
                 command = "sbatch --export=exp_name="+exp_name+" template.job"
-                os.system(command)
+                # os.system(command)
                 job_id = os.popen(command).read().replace('Submitted batch job ','')         
 
                 now = datetime.now()
