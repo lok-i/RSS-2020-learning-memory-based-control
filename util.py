@@ -224,8 +224,10 @@ def eval_policy_to_plot(
         env.cmnd_base_tvel[0] = 0. #np.random.choice([0.1,-0.1])
 
       while not done and traj_len < max_traj_len:
-        
-        
+
+
+
+          
         action = policy(state)
         next_state, reward, done, _ = env.step(action.numpy())
         

@@ -25,6 +25,27 @@ for file_path in conf_file_paths:
     trng_exp_conf_file.close()
 
     print(file_path)
+    
+    if 'skate_board' in file_path:
+
+
+        if 'set_robot_nominal' in trng_exp_conf['initialisations'].keys():
+            trng_exp_conf['initialisations'].update({'set_robot_one_leg_on_skateboard':'L_toe'})
+            trng_exp_conf['initialisations'].pop('set_robot_nominal')
+
+
+        if 'set_robot_on_skateboard_pose' in trng_exp_conf['initialisations'].keys():
+            trng_exp_conf['initialisations'].update({'set_robot_one_leg_on_skateboard':'L_toe'})
+            trng_exp_conf['initialisations'].pop('set_robot_on_skateboard_pose')
+        if 'set_skateboard_below_ltoe' in trng_exp_conf['initialisations'].keys():
+            trng_exp_conf['initialisations'].update({'set_skateboard_pos_x':'robot_base_x'})
+            trng_exp_conf['initialisations'].update({'set_skateboard_pos_y':[0.098]})
+            trng_exp_conf['initialisations'].pop('set_skateboard_below_ltoe')
+
+        if 'set_skateboard_pos_x' in trng_exp_conf['initialisations'].keys():
+            trng_exp_conf['initialisations'].update({'set_skateboard_pos_x':'robot_base_pos_x'})
+
+    '''
     if 'commands' in trng_exp_conf.keys():
         temp_dict = {}
         for key in trng_exp_conf['commands'].keys():
@@ -34,7 +55,7 @@ for file_path in conf_file_paths:
             trng_exp_conf['commands'].pop(key)
         trng_exp_conf['commands'].update(temp_dict)
 
-    '''
+    
     # gen params
     trng_exp_conf['visualize_reference'] = False
     trng_exp_conf.pop('dynamics_randomization')
