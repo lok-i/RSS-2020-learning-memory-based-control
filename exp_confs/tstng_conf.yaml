@@ -1,7 +1,7 @@
 # comment abbreviations
 # kim_0.04_hfield:keep it as a integer multiple of 0.004, precision of the hfield
 test_setup:
-  exp_log_path: ./logs/skate_wheels_123
+  exp_log_path: ./logs/sub_optimal_policies/follow_target_122
   traj_len: 300
   n_episodes: 5
   plotter: 'vel'
