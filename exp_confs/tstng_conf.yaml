@@ -1,40 +1,40 @@
 # comment abbreviations
 # kim_0.04_hfield:keep it as a integer multiple of 0.004, precision of the hfield
 test_setup:
-  exp_log_path: ./logs/skate_board_111
-  traj_len: 1000
+  exp_log_path: ./logs/skate_wheels_123
+  traj_len: 300
   n_episodes: 5
-  plotter: null
+  plotter: 'vel'
 
-initialisations:
-  set_robot_both_legs_on_skateboard: null
-  set_robot_base_tvel_x: [3]
-  set_skateboard_tvel_x: [3]
-  set_skateboard_pos_y: robot_base_pos_y
-  set_skateboard_pos_x: robot_base_pos_x
-  set_robot_base_yaw:
-  - 90
-  # set_robot_one_leg_on_skateboard: L_toe
+# initialisations:
+#   set_robot_both_legs_on_skateboard: null
+#   set_robot_h_on_terrain: [0.55]
+#   set_robot_base_pos_x: [-9.25]
+#   set_robot_base_tvel_x: [3]
+#   set_skateboard_tvel_x: [3]
+#   set_skateboard_pos_y: robot_base_pos_y
+#   set_skateboard_pos_x: robot_base_pos_x
+#   set_skateboard_pos_z: under_robot
+#   set_robot_base_yaw:
+#   - 90
 
 # sim_params:
 #   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_skateboard.xml
 #   render: true
 #   init_viewer_every_reset: true
 #   terrain:
-#     sinusoidal:
+
+#     plateau_slope:
 #       x_start_lim:
-#       - 0.48
+#       - -9.5
 #       x_end_lim:
-#       - 2.52
+#       - -8.5
+#       - -7.5
 #       y_start_lim:
 #       - -0.48
 #       y_end_lim:
 #       - 0.48
-#       phase_offset_lim:
-#       - 0
-#       ang_freq_lim:
-#       - 7.5
-#       - 10
-#       amplitude_lim:
-#       - 0.025
-#       - 0.085
+#       fraction_len_plateau_lim:
+#       - 0.5
+#       elevation_lim:
+#       - -30

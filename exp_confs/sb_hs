@@ -1,11 +1,9 @@
 sim_params:
-  model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_wheels.xml
-  render: true
+  model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_skateboard.xml
+  render: false
   init_viewer_every_reset: false
 visualize_reference: false
 traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_walk.npz
-vx_d_min: -0.15
-vx_d_max: 0.8
 p_gain: 30
 d_gain: 0.5
 simrate: 60
@@ -14,7 +12,7 @@ observations:
   robot_state_osu: null
   clock_osu: null
   command_speed_osu: null
-  robot_wheel_vel: null
+  skateboard_wheel_vel: null
 terminations:
   total_reward_min_thresh: 0.3
   com_height_min_thresh: 0.3
@@ -43,20 +41,26 @@ rewards:
 env_entry: dtsd.envs.biped_skate.biped_env
 commands:
   base_tvel_x_lim:
-  - 0
   - 1.5
+  - 3.5
   base_tvel_y_lim:
   - 0
 initialisations:
-  set_robot_nominal: null
   set_robot_base_tvel_x:
-  - 0
+  - 1
+  - 3
+  set_skateboard_tvel_x:
+  - 1
   - 3
   set_robot_base_pos_x:
   - -7.5
   set_robot_base_pos_z:
   - 0.5
   - 0.6
+  set_skateboard_pos_y:
+  - 0.098
+  set_skateboard_pos_x: robot_base_pos_x
+  set_robot_one_leg_on_skateboard: L_toe
 traj_slice_t_lim:
 - 0.3
 - 0.6
