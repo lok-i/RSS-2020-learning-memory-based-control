@@ -94,15 +94,13 @@ if __name__ == "__main__":
 
     model = torch.load(os.path.join(tstng_conf['test_setup']['exp_log_path'],'actor.pt'))
 
-    returns = eval_policy_to_plot(
-                                      model, 
-                                      max_traj_len=tstng_conf['test_setup']['traj_len'], 
-                                      episodes=tstng_conf['test_setup']['n_episodes'],
-                                      verbose=True,
-                                      return_traj = True,
-                                      exp_conf_path = tstng_exp_conf_path,
-                                      plotter = tstng_conf['test_setup']['plotter']
-                                      )
+    eval_policy_to_plot(
+                        model, 
+                        max_traj_len=tstng_conf['test_setup']['traj_len'], 
+                        verbose=True,
+                        exp_conf_path = tstng_exp_conf_path,
+                        plotter = tstng_conf['test_setup']['plotter']
+                        )
 
   if option == 'cassie':
     from cassie.udp import run_udp

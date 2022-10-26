@@ -11,6 +11,17 @@ if __name__ == '__main__':
     exp_confs = os.listdir('./exp_confs')
     command = 'rsync -av'
 
+
+    # copy base d ont he confs
+    for exp_name in ['ft_nom','ft_traj','hop_1_hs',
+                     'pw_2_hs','sb_hs','sw_hs']:
+        # exp_name = exp_name.replace('.yaml','')
+        
+        if exp_name != 'default' and ('tstng' not in exp_name):
+            command += remote_log_path+exp_name
+
+
+
     # copy base d ont he confs
     # for exp_name in exp_confs:
     #     exp_name = exp_name.replace('.yaml','')
@@ -18,22 +29,22 @@ if __name__ == '__main__':
     #     if exp_name != 'default' and ('tstng' not in exp_name):
     #         command += remote_log_path+exp_name
 
-    for exp_no in [
-                        '111','112','113',
-                        '121','122','123',
-                        '211','212','213',
-                        '221','222','223',
+    # for exp_no in [
+    #                     '111','112','113',
+    #                     '121','122','123',
+    #                     '211','212','213',
+    #                     '221','222','223',
                         
-                     ]:
-        exp_name = 'skate_wheels_'+exp_no#exp_name.replace('.yaml','')
+    #                  ]:
+    #     exp_name = 'skate_wheels_'+exp_no#exp_name.replace('.yaml','')
         
-        if exp_name != 'default' and ('tstng' not in exp_name):
-            command += remote_log_path+exp_name    
+    #     if exp_name != 'default' and ('tstng' not in exp_name):
+    #         command += remote_log_path+exp_name    
 
-        exp_name = 'skate_board_'+exp_no#exp_name.replace('.yaml','')
+    #     exp_name = 'skate_board_'+exp_no#exp_name.replace('.yaml','')
         
-        if exp_name != 'default' and ('tstng' not in exp_name):
-            command += remote_log_path+exp_name 
+    #     if exp_name != 'default' and ('tstng' not in exp_name):
+    #         command += remote_log_path+exp_name 
 
     command += ' ./logs/'
     print(command)

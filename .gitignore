@@ -1,5 +1,6 @@
 logs/
 temp/
+wandb/
 media/
 __pycache__/
 cassie/__pycache__/

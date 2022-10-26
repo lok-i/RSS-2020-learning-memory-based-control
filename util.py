@@ -159,10 +159,8 @@ def eval_policy(model,
 def eval_policy_to_plot(
                 model, 
                 env=None, 
-                episodes=5, 
                 max_traj_len=400, 
                 verbose=True, 
-                return_traj=False,
                 exp_conf_path = './exp_confs/default.yaml',
                 plotter=None
                 ):
@@ -174,105 +172,126 @@ def eval_policy_to_plot(
   elif model.nn_type == 'extractor':
     policy = torch.load(model.policy_path)
 
+
+  if plotter!= None:
+    pass
+    import wandb
+    wandb.init(
+        # Set the project where this run will be logged
+        project="tstng", 
+        # We pass a run name (otherwise it’ll be randomly assigned, like sunshine-lollypop-10)
+        name=plotter["run_name"], 
+        # Track hyperparameters and run metadata
+        config=env.exp_conf,
+        # mode="offline"
+        )    
+
   with torch.no_grad():
     
-    ep_returns = []
+    state = torch.Tensor(env.reset())
+    
+    if env.sim.sim_params['render']:
+    
+      env.sim.viewer._render_every_frame = False
+      env.sim.viewer._paused = True
+      env.sim.viewer.cam.distance = 3
+      cam_pos = [env.sim.data.qpos[0], 0.0, 0.75]
 
-    for _ in range(episodes):
-      env.dynamics_randomization = False
+      for i in range(3):        
+          env.sim.viewer.cam.lookat[i]= cam_pos[i] 
+      env.sim.viewer.cam.elevation = -15
+      env.sim.viewer.cam.azimuth = 90
+
+    done = False
+    traj_len = 0
 
 
+    if hasattr(policy, 'init_hidden_state'):
+      policy.init_hidden_state()
+    
+    steps = 0
+
+    # set intial startign target command
+    # try:
+    #   env.speed = 2.0 #0.0 #np.random.choice([0.1,-0.1])
+    # except:        
+    #   env.cmnd_base_tvel[0] = 0. #np.random.choice([0.1,-0.1])
 
 
-
-      state = torch.Tensor(env.reset())
-
-
-      if env.sim.sim_params['render']:
+    while not done and traj_len < max_traj_len:
       
-      #   for att in dir(env.sim.viewer):
-      #     if '_' in att and '__' not in att: 
-      #       print(att,getattr(env.sim.viewer,att))
-        env.sim.viewer._render_every_frame = False
-        env.sim.viewer._paused = True
-        env.sim.viewer.cam.distance = 3
-        cam_pos = [0.0, 0.0, 0.75]
 
-        for i in range(3):        
-            env.sim.viewer.cam.lookat[i]= cam_pos[i] 
-        env.sim.viewer.cam.elevation = -15
-        env.sim.viewer.cam.azimuth = 90
-
-
-
-      done = False
-      traj_len = 0
-      ep_return = 0
-
-      # set all loggers
-      vel_head_d = []
-      vel_head = []
-  
-      if hasattr(policy, 'init_hidden_state'):
-        policy.init_hidden_state()
+      action = policy(state)
+      next_state, reward, done, info_dict = env.step(action.numpy())
       
-      steps = 0
-      # initialised to 0, hacky though.. suddn drop to 0 from reset 
+      
+      # try updating velocity commands, can later be made to a joystick modules
       try:
-        env.speed = 0.5 #0.0 #np.random.choice([0.1,-0.1])
-      except:        
-        env.cmnd_base_tvel[0] = 0. #np.random.choice([0.1,-0.1])
+        if steps % 40 == 0:
+          env.speed += 0.1 #np.random.choice([0.1,-0.1])
+          # env.speed = np.clip(env.speed,0,1.7)
+          print("updated speed command:",env.speed)
+        head_vel_cmnd = env.speed
 
-      while not done and traj_len < max_traj_len:
-
-
-
-          
-        action = policy(state)
-        next_state, reward, done, _ = env.step(action.numpy())
+      except:
         
-        try:
-          if steps % 40 == 0:
-            env.speed += 0.1 #np.random.choice([0.1,-0.1])
-            env.speed = np.clip(env.speed,0,1.7)
-            print("updated speed command:",env.speed)
-          vel_head_d.append(env.speed)
+        if steps % 40 == 0:
+          env.cmnd_base_tvel[0] += 0.1 #np.random.choice([0.1,-0.1])
+          # env.cmnd_base_tvel[0] = np.clip(env.cmnd_base_tvel[0],0,1.6)
+          print("updated speed command:",env.cmnd_base_tvel[0])
+        head_vel_cmnd = env.cmnd_base_tvel[0]
 
-        except:
-          
-          if steps % 40 == 0:
-            env.cmnd_base_tvel[0] += 0.1 #np.random.choice([0.1,-0.1])
-            env.cmnd_base_tvel[0] = np.clip(env.cmnd_base_tvel[0],0,1.6)
-            print("updated speed command:",env.cmnd_base_tvel[0])
-          vel_head_d.append(env.cmnd_base_tvel[0])
+      state = torch.Tensor(next_state)
+      traj_len += 1
+      steps += 1
+    
+      if isinstance(plotter,dict):
+        log = {}
+        if 'commands' in plotter.keys():
+          # temperory, need togeneralize
+          log.update({'commands/head_vel_cmnd':head_vel_cmnd})
+        if 'rewards' in plotter.keys():
+          if 'rewards' not in info_dict.keys():
+            print(' env not returning reward data, logger failed, set return_rew_dict = True in env_conf')
+            exit()
+          else:
+            for rt_name, rt_val in info_dict['rewards'].items(): 
+              log.update({'rewards/'+rt_name : rt_val})
+        
+        if 'state_space' in plotter.keys():
+          # objects in the env
+          for obj in env.model_prop.keys():
+            
+            # slightly innefficient implemetation, as redundant.. an fix later            
+            if not(obj == 'vclone'):
 
-        vel_head.append(env.sim.data.qvel[ env.model_prop['drcl_biped']['ids']['base_tvel'][0] ])
+              # qpos
+              start_id = env.model_prop[obj]['ids']['qpos_slice'][0]
+              end_id = env.model_prop[obj]['ids']['qpos_slice'][-1]
+              
+              for i in range(start_id,end_id,1):
+                
 
-        state = torch.Tensor(next_state)
+                for sub_name in env.model_prop[obj]['ids'].keys():
+                  if ('pos' in sub_name or 'ori' in sub_name) and 'slice' not in sub_name:
+                    if i in env.model_prop[obj]['ids'][sub_name]:
+                      sub_index = env.model_prop[obj]['ids'][sub_name].index(i)
+                      log.update({'state_space/qpos/'+sub_name+'_'+str(sub_index):env.sim.data.qpos[i]})
 
-        ep_return += reward
-        traj_len += 1
-        steps += 1
+              # qvel
+              start_id = env.model_prop[obj]['ids']['qvel_slice'][0]
+              end_id = env.model_prop[obj]['ids']['qvel_slice'][-1]
+              for i in range(start_id,end_id,1):
 
-        if model.nn_type == 'extractor':
-          pass
-
-      ep_returns += [ep_return]
-      if verbose:
-        print('Return: {:6.2f}'.format(ep_return))
-      
-      if plotter != None:
-        import matplotlib.pyplot as plt
-        rollout_timestep = env.dt*np.arange(steps)
-        plt.plot(rollout_timestep,vel_head_d,label='vel_desired')
-        plt.plot(rollout_timestep,vel_head,'--',label='vel_actual')
-        plt.legend()
-        plt.grid()
-        plt.tight_layout()
-        plt.show()
-
-  return np.mean(ep_returns)
-
+                for sub_name in env.model_prop[obj]['ids'].keys():
+                  if 'vel' in sub_name and 'slice' not in sub_name:
+                    if i in env.model_prop[obj]['ids'][sub_name]:
+                      sub_index = env.model_prop[obj]['ids'][sub_name].index(i)
+                      log.update({'state_space/qvel/'+sub_name+'_'+str(sub_index):env.sim.data.qvel[i]})
+ 
+        wandb.log(log)
+  if plotter!= None:
+    wandb.finish()    
 def env_factory(
                 # dynamics_randomization,
                 exp_conf_path,

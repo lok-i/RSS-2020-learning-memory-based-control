@@ -1,6 +1,6 @@
 sim_params:
   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_skateboard.xml
-  render: false
+  render: true
   init_viewer_every_reset: true
   terrain:
     plateau_expslope:
@@ -13,7 +13,7 @@ sim_params:
       y_end_lim:
       - 0.48
       fraction_len_plateau_lim:
-      - 0.15
+      - 0.5
       exp_h_lim:
       - 0.35
       - 0.5
@@ -25,6 +25,7 @@ traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_walk.npz
 traj_slice_t:
 - 0.06
 - 0.66
+
 p_gain: 30
 d_gain: 0.5
 simrate: 60
@@ -53,17 +54,12 @@ rewards:
   forward_diff_thresh: 0.05
   y_vel_thresh: 0.03
   straight_diff_thresh: 0.05
-  target_robot_base_ori:
-  - 0.70710678
-  - 0.0
-  - 0.0
-  - 0.70710678
   scales:
     orientation_error: 0.3
-    joint_error_nominal: 0.05
-    forward_diff: 0.35
+    joint_error_nominal: 0.1
+    forward_diff: 0.3
     y_vel: 0.2
-    straight_diff: 0.1
+    straight_diff: 0.05
 env_entry: dtsd.envs.biped_skate.biped_env
 commands:
   base_tvel_x_lim:
@@ -72,19 +68,15 @@ commands:
   base_tvel_y_lim:
   - 0
 initialisations:
-  set_robot_both_legs_on_skateboard: null
-  set_robot_base_pos_x:
-  - -9.2
+  set_robot_one_leg_on_skateboard: L_toe
   set_robot_h_on_terrain:
-  - 0.55
-  set_robot_base_tvel_x:
   - 0.5
-  set_skateboard_tvel_x: robot_base_tvel_x
+  set_robot_base_pos_x:
+  - -9.25
+  set_skateboard_pos_y:
+  - 0.098
   set_skateboard_pos_x: robot_base_pos_x
-  set_skateboard_pos_y: robot_base_pos_y
   set_skateboard_pos_z: under_robot_on_terrain
-  set_robot_base_yaw:
-  - 90
 traj_slice_t_lim:
 - 0.3
 - 0.6

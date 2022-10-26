@@ -1,40 +1,75 @@
 # comment abbreviations
 # kim_0.04_hfield:keep it as a integer multiple of 0.004, precision of the hfield
 test_setup:
-  exp_log_path: ./logs/sub_optimal_policies/follow_target_122
-  traj_len: 300
-  n_episodes: 5
-  plotter: 'vel'
+  exp_log_path: ./logs/sb_hs
+  traj_len: 50
+  plotter: null
+  # plotter:
+    # run_name: 'reward_shaping' 
+    # rewards: null
+    # commands: null
+    # state_space: null
+# return_rew_dict: true
+
+# initialisations:
+#   set_robot_one_leg_on_skateboard: L_toe
+#   set_robot_h_on_terrain: [0.5]
+#   set_robot_base_pos_x: [-9.25]
+#   set_skateboard_pos_y:
+#   - 0.098
+#   set_skateboard_pos_x: robot_base_pos_x
+#   set_skateboard_pos_z: under_robot_on_terrain
+  
 
 # initialisations:
 #   set_robot_both_legs_on_skateboard: null
-#   set_robot_h_on_terrain: [0.55]
 #   set_robot_base_pos_x: [-9.25]
-#   set_robot_base_tvel_x: [3]
-#   set_skateboard_tvel_x: [3]
-#   set_skateboard_pos_y: robot_base_pos_y
+#   set_robot_h_on_terrain: [0.55] 
+#   set_robot_base_tvel_x: [5.]
+#   set_skateboard_tvel_x: robot_base_tvel_x
 #   set_skateboard_pos_x: robot_base_pos_x
-#   set_skateboard_pos_z: under_robot
+#   set_skateboard_pos_y: robot_base_pos_y
+#   set_skateboard_pos_z: under_robot_on_terrain
 #   set_robot_base_yaw:
 #   - 90
+
+# terminations:
+#   total_reward_min_thresh: 0.3
+#   com_height_min_thresh: 0.1
 
 # sim_params:
 #   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_skateboard.xml
 #   render: true
 #   init_viewer_every_reset: true
-#   terrain:
-
-#     plateau_slope:
-#       x_start_lim:
-#       - -9.5
-#       x_end_lim:
-#       - -8.5
-#       - -7.5
-#       y_start_lim:
-#       - -0.48
-#       y_end_lim:
-#       - 0.48
-#       fraction_len_plateau_lim:
-#       - 0.5
-#       elevation_lim:
-#       - -30
+  # terrain:
+    # plateau_slope:
+    #   x_start_lim:
+    #   - -9.5
+    #   x_end_lim:
+    #   - -8.5
+    #   - -7.5
+    #   y_start_lim:
+    #   - -0.48
+    #   y_end_lim:
+    #   - 0.48
+    #   fraction_len_plateau_lim:
+    #   - 0.5
+    #   elevation_lim:
+    #   - -30
+    # plateau_expslope:
+    #   x_start_lim:
+    #   - -9.5
+    #   x_end_lim:
+    #   - -7.5
+    #   y_start_lim:
+    #   - -0.48
+    #   y_end_lim:
+    #   - 0.48
+    #   fraction_len_plateau_lim:
+    #   - 0.5
+    #   exp_h_lim:
+    #   - 0.35
+    #   - 0.5
+    #   exp_k_lim:
+    #   - 3.5
+    #   - 7.5
