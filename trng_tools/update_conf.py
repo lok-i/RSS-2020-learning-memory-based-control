@@ -24,11 +24,27 @@ for file_path in conf_file_paths:
     trng_exp_conf = yaml.load(trng_exp_conf_file, Loader=yaml.FullLoader)
     trng_exp_conf_file.close()
 
-    # print(file_path)
 
-    if 'follow_target' in file_path:
-        trng_exp_conf['rewards'].update({'target_robot_pos_diff_exp_weight':0.5})
-        print(file_path)
+    if 'initialisations' in trng_exp_conf.keys():
+        if 'set_skateboard_pos_z' in trng_exp_conf['initialisations'].keys():
+            if trng_exp_conf['initialisations']['set_skateboard_pos_z'] == 'under_robot_on_terrain':
+                print(file_path)
+                trng_exp_conf['initialisations'].update({'set_skateboard_h_on_terrain_under_robot':[0.0420]})
+
+                trng_exp_conf['initialisations'].pop('set_skateboard_pos_z')
+
+
+
+    # trng_exp_conf.update({'actions':
+    #                         {
+    #                             'pd_targets': [0,10]
+    #                         }
+    #                     })
+
+
+    # if 'follow_target' in file_path:
+    #     trng_exp_conf['rewards'].update({'target_robot_pos_diff_exp_weight':0.5})
+    #     print(file_path)
         
     
     # if 'skate_board' in file_path:

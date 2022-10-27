@@ -1,9 +1,10 @@
 # comment abbreviations
 # kim_0.04_hfield:keep it as a integer multiple of 0.004, precision of the hfield
 test_setup:
-  exp_log_path: ./logs/sb_hs
-  traj_len: 50
+  exp_log_path: ./logs/sb_alob_flat
+  traj_len: 100
   plotter: null
+
   # plotter:
     # run_name: 'reward_shaping' 
     # rewards: null
@@ -41,7 +42,36 @@ test_setup:
 #   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_skateboard.xml
 #   render: true
 #   init_viewer_every_reset: true
-  # terrain:
+#   terrain:
+    # slope:
+    #   x_start_lim:
+    #   - -7.5
+    #   x_end_lim:
+    #   - -6.5
+    #   y_start_lim:
+    #   - -0.48
+    #   y_end_lim:
+    #   - 0.48
+    #   elevation_lim:
+    #   - 20
+    # sinusoidal:
+    #   x_start_lim:
+    #   - -7.5
+    #   x_end_lim:
+    #   - -6.
+    #   y_start_lim:
+    #   - -0.48
+    #   y_end_lim:
+    #   - 0.48
+    #   phase_offset_lim:
+    #   - 0
+    #   ang_freq_lim:
+    #   - 7.5
+    #   # - 10
+    #   amplitude_lim:
+    #   - 0.025
+    #   # - 0.085
+
     # plateau_slope:
     #   x_start_lim:
     #   - -9.5

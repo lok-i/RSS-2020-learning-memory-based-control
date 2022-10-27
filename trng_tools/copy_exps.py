@@ -13,8 +13,12 @@ if __name__ == '__main__':
 
 
     # copy base d ont he confs
-    for exp_name in ['ft_nom','ft_traj','hop_1_hs',
-                     'pw_2_hs','sb_hs','sw_hs']:
+    for exp_name in [
+                     'sw_hs',
+                     'sb_expdecline',
+                     'sb_alob_flat',
+                     'sb_alob_expdecline',
+                    ]:
         # exp_name = exp_name.replace('.yaml','')
         
         if exp_name != 'default' and ('tstng' not in exp_name):
