@@ -14,10 +14,9 @@ if __name__ == '__main__':
 
     # copy base d ont he confs
     for exp_name in [
-                     'sw_hs',
-                     'sb_expdecline',
-                     'sb_alob_flat',
+                     'sb_pint_flat',
                      'sb_alob_expdecline',
+                     'sb_alob_expdecline_sine',
                     ]:
         # exp_name = exp_name.replace('.yaml','')
         

@@ -215,12 +215,15 @@ def eval_policy_to_plot(
     # try:
     #   env.speed = 2.0 #0.0 #np.random.choice([0.1,-0.1])
     # except:        
-    #   env.cmnd_base_tvel[0] = 0. #np.random.choice([0.1,-0.1])
-
+    env.cmnd_base_tvel[0] = 2.0 #np.random.choice([0.1,-0.1])
+    
 
     while not done and traj_len < max_traj_len:
+
+      # env.sim.chk_contact_bw_bodies(body1='terrain',body2='L_toe')
       
 
+      # env.sim.chk_contact_bw_bodies(body1='terrain',body2='R_toe')
       action = policy(state)
       next_state, reward, done, info_dict = env.step(action.numpy())
       
@@ -228,7 +231,7 @@ def eval_policy_to_plot(
       # try updating velocity commands, can later be made to a joystick modules
       try:
         if steps % 40 == 0:
-          env.speed += 0.1 #np.random.choice([0.1,-0.1])
+          # env.speed += 0.1 #np.random.choice([0.1,-0.1])
           # env.speed = np.clip(env.speed,0,1.7)
           print("updated speed command:",env.speed)
         head_vel_cmnd = env.speed
@@ -236,7 +239,7 @@ def eval_policy_to_plot(
       except:
         
         if steps % 40 == 0:
-          env.cmnd_base_tvel[0] += 0.1 #np.random.choice([0.1,-0.1])
+          # env.cmnd_base_tvel[0] += 0.1 #np.random.choice([0.1,-0.1])
           # env.cmnd_base_tvel[0] = np.clip(env.cmnd_base_tvel[0],0,1.6)
           print("updated speed command:",env.cmnd_base_tvel[0])
         head_vel_cmnd = env.cmnd_base_tvel[0]
