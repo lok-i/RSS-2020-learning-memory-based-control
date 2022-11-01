@@ -2,11 +2,8 @@ sim_params:
   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml
   render: false
   init_viewer_every_reset: false
-
 visualize_reference: false
-dynamics_randomization: false
 traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_walk.npz
-env_entry: dtsd.envs.biped_flight.biped_env
 traj_slice_t:
 - 0.06
 - 0.66
@@ -14,42 +11,15 @@ p_gain: 30
 d_gain: 0.5
 simrate: 60
 robot: drcl_biped
-initialisations:
-  set_robot_nominal: null
-  set_robot_base_pos_z:
-  - 1
-  set_robot_base_roll:
-  - -15
-  - 15
-  set_robot_base_pitch:
-  - -15
-  - 15
-  set_robot_base_yaw:
-  - -15
-  - 15
-  set_robot_base_tvel_x:
-  - -2
-  - 2
-  set_robot_base_tvel_y:
-  - -2
-  - 2
-  set_robot_base_tvel_z:
-  - 0
-  - 2
-commands:
-  base_tvel_x_lim:
-  - 0
-  base_tvel_y_lim:
-  - 0
-
 observations:
   robot_state_osu: null
 terminations:
-  total_reward_min_thresh: 0.3
+  total_reward_min_thresh: 0.0
   com_height_min_thresh: 0.25
 rewards:
   only_upon_toes_contact:
   - joint_error_nominal
+  - orientation_error
   - cmnd_base_tvel
   orientation_error_exp_weight: 5
   cmnd_base_tvel_diff_thresh: 0.05
@@ -68,6 +38,20 @@ rewards:
     orientation_error: 0.45
     joint_error_nominal: 0.45
     cmnd_base_tvel_diff: 0.1
+dynamics_randomization: false
+env_entry: dtsd.envs.biped_flight.biped_env
+initialisations:
+  set_robot_nominal: null
+  set_robot_base_pos_z:
+  - 1.5
+  set_robot_base_avel_pitch:
+  - -13
+  - 13
+commands:
+  base_tvel_x_lim:
+  - 0
+  base_tvel_y_lim:
+  - 0
 traj_slice_t_lim:
 - 0.3
 - 0.6
@@ -75,3 +59,4 @@ actions:
   pd_targets:
   - 0
   - 10
+

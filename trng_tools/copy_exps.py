@@ -13,24 +13,26 @@ if __name__ == '__main__':
 
 
     # copy base d ont he confs
-    for exp_name in [
-                     'sb_pint_flat',
-                     'sb_alob_expdecline',
-                     'sb_alob_expdecline_sine',
-                    ]:
-        # exp_name = exp_name.replace('.yaml','')
+    # for exp_name in [
+    #                  'sb_pint_flat',
+    #                  'sb_alob_expdecline',
+    #                  'sb_alob_expdecline_sine',
+    #                 ]:
+    #     # exp_name = exp_name.replace('.yaml','')
         
-        if exp_name != 'default' and ('tstng' not in exp_name):
-            command += remote_log_path+exp_name
+    #     if exp_name != 'default' and ('tstng' not in exp_name):
+    #         command += remote_log_path+exp_name
 
 
 
     # copy base d ont he confs
-    # for exp_name in exp_confs:
-    #     exp_name = exp_name.replace('.yaml','')
+    for exp_name in exp_confs:
+        exp_name = exp_name.replace('.yaml','')
         
-    #     if exp_name != 'default' and ('tstng' not in exp_name):
-    #         command += remote_log_path+exp_name
+        if exp_name != 'default' and ('tstng' not in exp_name):
+            print('copied:',exp_name)
+
+            command += remote_log_path+exp_name
 
     # for exp_no in [
     #                     '111','112','113',

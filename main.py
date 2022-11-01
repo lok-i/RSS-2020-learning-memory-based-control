@@ -98,6 +98,7 @@ if __name__ == "__main__":
                         model, 
                         max_traj_len=tstng_conf['test_setup']['traj_len'], 
                         verbose=True,
+                        n_episodes=tstng_conf['test_setup']['n_episodes'],
                         exp_conf_path = tstng_exp_conf_path,
                         plotter = tstng_conf['test_setup']['plotter']
                         )

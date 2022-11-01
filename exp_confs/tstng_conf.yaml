@@ -1,8 +1,9 @@
 # comment abbreviations
 # kim_0.04_hfield:keep it as a integer multiple of 0.004, precision of the hfield
 test_setup:
-  exp_log_path: ./logs/pw_2_hs
-  traj_len: 100
+  exp_log_path: ./logs/land_tvel_1
+  traj_len: 40
+  n_episodes: 10
   plotter: null
 
   # plotter:
@@ -10,8 +11,19 @@ test_setup:
   #   rewards: null
   #   commands: null
   #   state_space: null
-# return_rew_dict: true
 
+return_rew_dict: true
+
+# initialisations:
+#   set_robot_nominal: null
+#   set_robot_base_pos_z:
+#   - 1
+#   set_robot_base_roll:
+#   - 0
+#   set_robot_base_pitch:
+#   - 0
+#   set_robot_base_yaw:
+#   - 0
 
 # initialisations:
 #   set_robot_one_leg_on_skateboard: L_toe
