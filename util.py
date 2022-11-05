@@ -168,6 +168,11 @@ def eval_policy_to_plot(
   if env is None:
     env = env_factory(exp_conf_path)()
 
+  
+
+  # for enabling access to energy
+  env.sim.model.opt.enableflags = 2
+
   if model.nn_type == 'policy':
     policy = model
   elif model.nn_type == 'extractor':
@@ -224,6 +229,7 @@ def eval_policy_to_plot(
       # except:
       #   pass
 
+      energies = []
       while not done and traj_len < max_traj_len:
 
         # env.sim.chk_contact_bw_bodies(body1='terrain',body2='L_toe')
@@ -232,8 +238,8 @@ def eval_policy_to_plot(
         # env.sim.chk_contact_bw_bodies(body1='terrain',body2='R_toe')
         action = policy(state)
         next_state, reward, done, info_dict = env.step(action.numpy())
-        
-        
+        # print(info_dict['rewards'])
+
         # try updating velocity commands, can later be made to a joystick modules
         # try:
         #   if steps % 40 == 0:
@@ -253,16 +259,20 @@ def eval_policy_to_plot(
           head_vel_cmnd = env.cmnd_base_tvel[0]
         except:
           pass
-
+        
+        
         state = torch.Tensor(next_state)
         traj_len += 1
         steps += 1
+
+        energies.append(env.sim.data.energy.tolist())
 
         if isinstance(plotter,dict):
           log = {}
           if 'commands' in plotter.keys():
             # temperory, need togeneralize
             log.update({'commands/head_vel_cmnd':head_vel_cmnd})
+          
           if 'rewards' in plotter.keys():
             if 'rewards' not in info_dict.keys():
               print(' env not returning reward data, logger failed, set return_rew_dict = True in env_conf')
@@ -302,7 +312,15 @@ def eval_policy_to_plot(
                         sub_index = env.model_prop[obj]['ids'][sub_name].index(i)
                         log.update({'state_space/qvel/'+sub_name+'_'+str(sub_index):env.sim.data.qvel[i]})
   
+          if 'ctrl' in plotter.keys():
+            for act_id, ctrl in enumerate(env.sim.data.ctrl):
+              act_name = env.sim.obj_id2name(obj_id=act_id,type='actuator')
+              log.update({'ctrl/'+act_name:ctrl})
+  
+
           wandb.log(log)
+      energies = np.array(energies,dtype=list)
+      print("mean energy:",np.mean(energies,axis=0), ' of ',steps,' steps.')
     if plotter!= None:
       wandb.finish()
 

@@ -94,6 +94,7 @@ if __name__ == "__main__":
 
     model = torch.load(os.path.join(tstng_conf['test_setup']['exp_log_path'],'actor.pt'))
 
+
     eval_policy_to_plot(
                         model, 
                         max_traj_len=tstng_conf['test_setup']['traj_len'], 
@@ -165,6 +166,7 @@ if __name__ == "__main__":
     
     # env params to play with 
     parser.add_argument("--exp_conf_path",  default="./exp_confs/default.yaml", type=str)  # path to econf file of experiment parameters
+    parser.add_argument("--load_initial_agent_from", default=None, type=str)              # path to intital policy if to be loaded
 
     args = parser.parse_args()
     

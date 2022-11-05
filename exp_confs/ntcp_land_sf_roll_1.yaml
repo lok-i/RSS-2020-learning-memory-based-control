@@ -17,10 +17,12 @@ terminations:
   total_reward_min_thresh: 0.0
   com_height_min_thresh: 0.25
 rewards:
+  non_toes_contact_penalty: -0.3
   only_upon_toes_contact:
   - joint_error_nominal
   - orientation_error
   - cmnd_base_tvel
+  - non_toes_contact_penalty
   orientation_error_exp_weight: 5
   cmnd_base_tvel_diff_thresh: 0.05
   joint_error_exp_weight:
@@ -35,6 +37,7 @@ rewards:
   - 0.05
   - 0.05
   scales:
+    penalize_non_toes_contact: 1.0
     orientation_error: 0.45
     joint_error_nominal: 0.45
     cmnd_base_tvel_diff: 0.1
@@ -45,7 +48,7 @@ initialisations:
   set_robot_base_pos_z:
   - 1.5
   set_robot_base_avel_roll:
-  - 14
+  - -14
 commands:
   base_tvel_x_lim:
   - 0

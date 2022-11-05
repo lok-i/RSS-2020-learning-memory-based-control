@@ -1,4 +1,4 @@
-import csv
+
 import os
 import csv
 from datetime import datetime
@@ -13,7 +13,7 @@ if __name__ == '__main__':
         for exp_name in exp_confs:
             exp_name = exp_name.replace('.yaml','')
             
-            if exp_name != 'default' and ('tstng' not in exp_name):
+            if exp_name not in ['default','tstng_exp_conf','tstng_conf','trng_parms_to_vary']:
                 command = "sbatch --export=exp_name="+exp_name+" template.job"
                 # os.system(command)
                 job_id = os.popen(command).read().replace('Submitted batch job ','')         

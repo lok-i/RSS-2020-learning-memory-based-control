@@ -1,18 +1,19 @@
 # comment abbreviations
 # kim_0.04_hfield:keep it as a integer multiple of 0.004, precision of the hfield
 test_setup:
-  exp_log_path: ./logs/land_tvel_1
+  exp_log_path: ./logs/land_bf_pitch_1
   traj_len: 40
-  n_episodes: 10
+  n_episodes: 1
   plotter: null
-
   # plotter:
-  #   run_name: 'sb_alob_expdecline' 
+  #   run_name: 'non_toes_contact_penalty_rs' 
   #   rewards: null
-  #   commands: null
+  #   # commands: null
   #   state_space: null
+  #   ctrl: null
 
 return_rew_dict: true
+
 
 # initialisations:
 #   set_robot_nominal: null

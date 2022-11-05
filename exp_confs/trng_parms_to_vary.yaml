@@ -1,0 +1,21 @@
+
+ref_motions:
+  - 360yaw:
+      traj_path: dtsd/envs/rsc/trajectories/linear_interpolations/360yaw.npz
+  - sf:
+      traj_path: dtsd/envs/rsc/trajectories/linear_interpolations/sf.npz
+  - hop:
+      traj_path: dtsd/envs/rsc/trajectories/linear_interpolations/hop.npz
+  - walk:
+      traj_path: dtsd/envs/rsc/trajectories/linear_interpolations/walk.npz
+  - bf:
+      traj_path: dtsd/envs/rsc/trajectories/linear_interpolations/bf.npz
+
+# initialisations/start_phase_percentage: 
+#     - {
+#         scheme: uniform_random,
+#         range: [0.,1.]
+#       }
+#     - 0.
+#     - 1. 
+

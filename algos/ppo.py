@@ -339,18 +339,26 @@ def run_experiment(args,**kwargs):
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
 
-    if args.recurrent:
-      policy = LSTM_Stochastic_Actor(obs_dim, action_dim,\
-                                     layers=layers, 
-                                     dynamics_randomization=args.randomize, 
-                                     fixed_std=torch.ones(action_dim)*args.std)
-      critic = LSTM_V(obs_dim, layers=layers)
+    if args.load_initial_agent_from == None:
+      if args.recurrent:
+        policy = LSTM_Stochastic_Actor(obs_dim, action_dim,\
+                                      layers=layers, 
+                                      dynamics_randomization=args.randomize, 
+                                      fixed_std=torch.ones(action_dim)*args.std)
+        critic = LSTM_V(obs_dim, layers=layers)
+      else:
+        policy = FF_Stochastic_Actor(obs_dim, action_dim,\
+                                    layers=layers, 
+                                    dynamics_randomization=args.randomize, 
+                                    fixed_std=torch.ones(action_dim)*args.std)
+        critic = FF_V(obs_dim, layers=layers)
+    elif isinstance(args.load_initial_agent_from,str):
+      print('\nloading initial ppolicy and critic from:',args.load_initial_agent_from)
+      policy = torch.load(os.path.join(args.load_initial_agent_from,'actor.pt'))
+      critic = torch.load(os.path.join(args.load_initial_agent_from,'critic.pt'))
     else:
-      policy = FF_Stochastic_Actor(obs_dim, action_dim,\
-                                   layers=layers, 
-                                   dynamics_randomization=args.randomize, 
-                                   fixed_std=torch.ones(action_dim)*args.std)
-      critic = FF_V(obs_dim, layers=layers)
+      print('incompatible datatype for args.load_initial_agent_from, enter a path')
+      exit()
 
     env = env_fn()
 
