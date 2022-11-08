@@ -1,7 +1,7 @@
 sim_params:
   model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_pint_skateboard.xml
-  render: true
-  init_viewer_every_reset: true
+  render: false
+  init_viewer_every_reset: false
 visualize_reference: false
 traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_walk.npz
 traj_slice_t:
@@ -77,5 +77,4 @@ actions:
   - 0
   - 10
   skateboard_wheel_torque_linear_sb_pitch_npo:
-    k: 11.5
-return_rew_dict: true
+    k: 18

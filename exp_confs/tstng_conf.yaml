@@ -1,10 +1,10 @@
 # comment abbreviations
 # kim_0.04_hfield:keep it as a integer multiple of 0.004, precision of the hfield
 test_setup:
-  exp_log_path: ./logs/hop_1_hs
+  exp_log_path: ./logs/sb_pint_flat
 
   traj_len: 100
-  n_episodes: 5
+  n_episodes: 10
   plotter: null
   # plotter:
   #   run_name: 'slit_rs_chk' 

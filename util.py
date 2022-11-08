@@ -10,6 +10,7 @@ import numpy as np
 from collections import OrderedDict
 import shutil
 import yaml
+from dm_control.utils import transformations
 
 
 def create_logger(args):
@@ -179,8 +180,6 @@ def eval_policy_to_plot(
     policy = torch.load(model.policy_path)
 
   if env.sim.sim_params['render']:
-
-    env.sim.viewer._render_every_frame = False
     env.sim.viewer._paused = True
     env.sim.viewer.cam.distance = 3
     cam_pos = [env.sim.data.qpos[0], 0.0, 0.75]
@@ -208,14 +207,13 @@ def eval_policy_to_plot(
       
       state = torch.Tensor(env.reset())
       
-
+      if env.sim.sim_params['render']:
+        env.sim.viewer._render_every_frame = False
 
       done = False
       traj_len = 0
 
 
-      if hasattr(policy, 'init_hidden_state'):
-        policy.init_hidden_state()
       
       steps = 0
 
@@ -230,6 +228,7 @@ def eval_policy_to_plot(
       #   pass
 
       energies = []
+
       while not done and traj_len < max_traj_len:
 
         # env.sim.chk_contact_bw_bodies(body1='terrain',body2='L_toe')
@@ -238,6 +237,10 @@ def eval_policy_to_plot(
         # env.sim.chk_contact_bw_bodies(body1='terrain',body2='R_toe')
         action = policy(state)
         next_state, reward, done, info_dict = env.step(action.numpy())
+
+
+
+
         # print(info_dict['rewards'])
 
         # try updating velocity commands, can later be made to a joystick modules
