@@ -11,6 +11,13 @@ if __name__ == '__main__':
     exp_confs = os.listdir('./exp_confs')
     command = 'rsync -av'
 
+    # copy based on the confs
+    for exp_name in exp_confs:
+        exp_name = exp_name.replace('.yaml','')
+        
+        if exp_name not in ['default','tstng_exp_conf','tstng_conf','trng_parms_to_vary']:
+            print('to be copied:',exp_name)
+            command += remote_log_path+exp_name
 
     # copy base d ont he confs
     # for exp_name in [
@@ -25,14 +32,7 @@ if __name__ == '__main__':
 
 
 
-    # copy base d ont he confs
-    for exp_name in exp_confs:
-        exp_name = exp_name.replace('.yaml','')
-        
-        if exp_name != 'default' and ('tstng' not in exp_name):
-            print('copied:',exp_name)
 
-            command += remote_log_path+exp_name
 
     # for exp_no in [
     #                     '111','112','113',

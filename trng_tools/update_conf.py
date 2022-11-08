@@ -3,16 +3,23 @@ import os
 
 
 conf_file_paths = []
-for exp_log in os.listdir("./logs"):
+for exp_log in os.listdir("./exp_confs"):
 
-    if exp_log != 'cassie_results':
+    # ./logs
+    # if exp_log != 'cassie_results':
 
-        if exp_log == 'sub_optimal_policies':
-            for sub_exp_log in os.listdir("./logs/sub_optimal_policies"):
-                conf_file_paths.append("./logs/sub_optimal_policies/"+sub_exp_log+"/exp_conf.yaml")
+    #     if exp_log == 'sub_optimal_policies':
+    #         for sub_exp_log in os.listdir("./logs/sub_optimal_policies"):
+    #             conf_file_paths.append("./logs/sub_optimal_policies/"+sub_exp_log+"/exp_conf.yaml")
 
-        else:
-            conf_file_paths.append("./logs/"+exp_log+"/exp_conf.yaml")
+    #     else:
+    #         conf_file_paths.append("./logs/"+exp_log+"/exp_conf.yaml")
+    
+    # ./exp_confs
+    exp_name = exp_log.replace('.yaml','')
+    if exp_name not in ['default','tstng_exp_conf','tstng_conf','trng_parms_to_vary']:
+        conf_file_paths.append("./exp_confs/"+exp_log)
+
 
 # print(conf_file_paths)
 
@@ -25,13 +32,18 @@ for file_path in conf_file_paths:
     trng_exp_conf_file.close()
 
 
-    if 'initialisations' in trng_exp_conf.keys():
-        if 'set_skateboard_pos_z' in trng_exp_conf['initialisations'].keys():
-            if trng_exp_conf['initialisations']['set_skateboard_pos_z'] == 'under_robot_on_terrain':
-                print(file_path)
-                trng_exp_conf['initialisations'].update({'set_skateboard_h_on_terrain_under_robot':[0.0420]})
+    if 'oce' in file_path:
+        print(file_path)
+        trng_exp_conf['env_entry'] = 'dtsd.envs.biped_oce.biped_env' 
+        trng_exp_conf['observations'].pop('obs_clock_osu')
+        trng_exp_conf['observations'].update({'clock_osu':None})
+    # if 'initialisations' in trng_exp_conf.keys():
+    #     if 'set_skateboard_pos_z' in trng_exp_conf['initialisations'].keys():
+    #         if trng_exp_conf['initialisations']['set_skateboard_pos_z'] == 'under_robot_on_terrain':
+    #             print(file_path)
+    #             trng_exp_conf['initialisations'].update({'set_skateboard_h_on_terrain_under_robot':[0.0420]})
 
-                trng_exp_conf['initialisations'].pop('set_skateboard_pos_z')
+    #             trng_exp_conf['initialisations'].pop('set_skateboard_pos_z')
 
 
 

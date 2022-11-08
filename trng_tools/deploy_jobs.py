@@ -23,4 +23,4 @@ if __name__ == '__main__':
                 # write the log
                 csv_writer.writerow([date_time_str, job_id, exp_name])
 
-                print("\tdeployed exp: ",exp_name)
+                print("\tdeployed exp: ",exp_name,job_id)

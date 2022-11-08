@@ -1,15 +1,13 @@
 sim_params:
-  model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_osudrl.xml
-  render: true
+  model_path: dtsd/envs/rsc/models/mini_biped/xmls/biped_simple_stilts.xml
+  render: false
   init_viewer_every_reset: false
 visualize_reference: false
-dynamics_randomization: false
+
 traj_path: dtsd/envs/rsc/trajectories/drcl_kdto/npzs/biped_hop.npz
 traj_slice_t:
 - 0.06
 - 0.66
-vx_d_min: 1.0
-vx_d_max: 2.5
 p_gain: 30
 d_gain: 0.5
 simrate: 60
@@ -20,7 +18,7 @@ observations:
   command_speed_osu: null
 terminations:
   total_reward_min_thresh: 0.3
-  com_height_min_thresh: 0.3
+  com_height_min_thresh: 0.4 
 rewards:
   orientation_error_exp_weight: 5
   joint_error_exp_weight:
@@ -34,15 +32,26 @@ rewards:
   - 0.1
   - 0.05
   - 0.05
-  forward_diff_thresh: 0.05
+  cmnd_base_tvel_diff_thresh: 0.05
   y_vel_thresh: 0.03
   straight_diff_thresh: 0.05
   scales:
     orientation_error: 0.3
-    joint_error: 0.2
-    forward_diff: 0.2
+    joint_error_ref: 0.2
+    cmnd_base_tvel_diff: 0.25
     y_vel: 0.2
     straight_diff: 0.05
+initialisations:
+  set_robot_on_traj: null
+  set_robot_base_pos_z:
+  - 0.65
+env_entry: dtsd.envs.biped_flight.biped_env
+commands:
+  base_tvel_x_lim:
+  - 0.0
+  - 1.0
+  base_tvel_y_lim:
+  - 0
 traj_slice_t_lim:
 - 0.0
 - 0.3
